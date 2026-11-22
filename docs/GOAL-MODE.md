@@ -6,13 +6,13 @@
 
 当前已确认的宿主适配面：
 
-| 宿主 | 原生入口 |
-|---|---|
-| MiniMax Code | 对话中的 Goal 控件 |
-| ZCode | 对话命令 `/goal` |
-| Claude Code | `plan` 权限模式和可恢复会话 |
-| Codex CLI | 持久线程和 `exec resume` |
-| Pi Agent | 会话文件、`--session` 和 `--resume` |
+| 宿主 | 原生入口 | 跨会话恢复证据 |
+|---|---|---|
+| MiniMax Code | 对话中的 Goal 控件 | 未验证 |
+| ZCode | 对话命令 `/goal` | 未验证 |
+| Claude Code | `plan` 权限模式和可恢复会话 | 已验证 |
+| Codex CLI | 持久线程和 `exec resume` | 已验证 |
+| Pi Agent | 会话文件、`--session` 和 `--resume` | 已验证 |
 
 这些入口的语义不同：MiniMax 和 ZCode 提供显式 Goal；其他三个已确认的是计划或可恢复会话。DeepStack 只负责选择适配面和报告证据，不把它们伪装成同一种 API。
 
