@@ -15,6 +15,7 @@ DeepStack 的内部步骤不能凭宿主名称或配置文件猜测能力。每�
 | `quality-gate` | 真实发现并运行项目已有的格式、静态检查、类型或测试入口 |
 | `native-goal` | 真实观察或使用宿主原生 Goal、任务、计划或会话入口 |
 | `session-recovery` | 开始一轮后，在下一轮或重新打开的会话中读回上一轮状态 |
+| `model-policy` | 使用统一 L0/L1/L2 输入，真实返回风险优先分级和单模型降级契约 |
 
 ## 决策规则
 
@@ -24,6 +25,7 @@ DeepStack 的内部步骤不能凭宿主名称或配置文件猜测能力。每�
 4. `quality-gate` 只在 `quality-gate` 已确认且项目入口实际存在时运行；否则标记 `NOT_CONFIGURED`。
 5. 任何只读承诺都需要 `readonly-execution` 证据；仅有宿主名称、模式名称或配置文件不能算确认。
 6. `native-goal` 只证明入口存在；跨会话承诺必须另有 `session-recovery` 证据。
+7. `model-policy` 未确认时，不能宣称该宿主自动执行 DeepStack 的模型升级策略。
 
 开始任务时输出最小探测结果：
 
