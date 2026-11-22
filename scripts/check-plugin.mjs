@@ -41,6 +41,19 @@ for (const { file, value } of manifests) {
   }
 }
 
+const marketplace = readJsonFile(".claude-plugin/marketplace.json");
+const marketplacePlugin = marketplace?.plugins?.find((plugin) => plugin.name === canonical?.name);
+if (!marketplacePlugin) {
+  errors.push(".claude-plugin/marketplace.json: missing plugin entry for canonical plugin");
+} else {
+  for (const key of ["name", "version", "description"]) {
+    if (!marketplacePlugin[key]) errors.push(`.claude-plugin/marketplace.json: plugin entry missing ${key}`);
+    if (canonical?.[key] && marketplacePlugin[key] !== canonical[key]) {
+      errors.push(`.claude-plugin/marketplace.json: plugin ${key} differs from canonical manifest`);
+    }
+  }
+}
+
 const skillsRoot = path.join(root, "skills");
 const skillDirs = fs.existsSync(skillsRoot)
   ? fs.readdirSync(skillsRoot, { withFileTypes: true }).filter((entry) => entry.isDirectory())

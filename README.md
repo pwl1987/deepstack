@@ -62,7 +62,11 @@ DeepStack 不把“更多模型、更多代理、更多命令”当作质量。�
 
 ### ZCode
 
-在插件市场添加本仓库的本地路径，然后安装 `deepstack`。本仓库保留 `.zcode-plugin/` 清单；当前 CI 验证清单结构，ZCode 的实际加载和路由行为仍需在目标客户端验证。
+在插件市场添加本仓库并安装 `deepstack`。本仓库保留 `.zcode-plugin/` 清单；如果客户端无法访问本地路径，可使用公开 GitHub 仓库的默认分支。当前 ZCode 客户端不接受 GitHub 分支页面 URL 作为 marketplace 地址，因此 PR 分支需要先合并或通过客户端支持的归档/本地方式提供。安装成功后应在插件卡片或会话中看到 `deepstack`。
+
+### MiniMax Code
+
+在“插件・技能 → 更多创建选项 → 从 Git 仓库导入”粘贴公开 GitHub 仓库地址；MiniMax Code 支持指定 GitHub 分支或子目录。导入预览应显示 `deepstack`、当前版本和技能数量，安装后在管理页启用插件，再用自然语言任务验证路由。多项目工作区应先切换到目标项目，避免把父目录当成单一仓库扫描。
 
 ### 其他支持 Agent Skills 的宿主
 
