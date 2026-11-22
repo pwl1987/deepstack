@@ -60,6 +60,10 @@ DeepStack 不把“更多模型、更多代理、更多命令”当作质量。�
 /plugin install deepstack@deepstack
 ```
 
+### ZCode
+
+在插件市场添加本仓库的本地路径，然后安装 `deepstack`。本仓库保留 `.zcode-plugin/` 清单；当前 CI 验证清单结构，ZCode 的实际加载和路由行为仍需在目标客户端验证。
+
 ### 其他支持 Agent Skills 的宿主
 
 将 `skills/` 安装到宿主的技能目录，然后调用 `/deepstack`。宿主不支持技能命令时，可以把 `skills/deepstack/SKILL.md` 作为项目规则入口，但自动路由、内部技能调用和质量门能力取决于宿主。
