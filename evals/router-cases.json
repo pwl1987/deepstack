@@ -17,6 +17,11 @@
       "expectedRoute": "delivery"
     },
     {
+      "id": "long-running-goal",
+      "prompt": "用几个阶段完成这次迁移，持续记录检查点，明天可以从当前进度继续。",
+      "expectedRoute": "goal"
+    },
+    {
       "id": "regression-fix",
       "prompt": "修复重试后产生两条通知的回归，先复现并给出回归测试。",
       "expectedRoute": "bug-fix"

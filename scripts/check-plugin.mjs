@@ -116,13 +116,13 @@ for (const dir of skillDirs) {
 if (!fs.existsSync(skillsRoot)) errors.push("skills/: missing directory");
 
 const routeCases = readJsonFile("evals/router-cases.json");
-const allowedRoutes = new Set(["investigation", "pickup", "delivery", "bug-fix", "refactor", "feature"]);
+const allowedRoutes = new Set(["investigation", "pickup", "delivery", "goal", "bug-fix", "refactor", "feature"]);
 if (!routeCases || routeCases.version !== 1 || !Array.isArray(routeCases.cases)) {
   errors.push("evals/router-cases.json: expected version 1 and a cases array");
 } else {
   const caseIds = new Set();
   const routes = new Set();
-  if (routeCases.cases.length < 6) errors.push("evals/router-cases.json: need at least one case per route");
+  if (routeCases.cases.length < 7) errors.push("evals/router-cases.json: need at least one case per route");
   for (const item of routeCases.cases) {
     if (!item.id || caseIds.has(item.id)) errors.push("evals/router-cases.json: duplicate or missing case id");
     if (!item.prompt) errors.push(`evals/router-cases.json: ${item.id || "<unknown>"} missing prompt`);
