@@ -10,7 +10,7 @@ description: Adversarial multi-model diff interrogation. Use before high-risk me
 ## 流程
 
 1. **备料**:完整 diff + 一句话背景 + 风险面清单(并发/权限/数据迁移/对外接口)。
-2. **三 persona 并行攻击**(ToolSearch 加载 CreateWorkflow,三个面板模型各扮一个):
+2. **三 persona 攻击**:在宿主支持独立上下文和并行时并行执行；否则顺序执行并明确标注降级：
    - **边界猎手**:空值/极值/并发/失败路径/权限,每个边界追问"这个输入真的进得来吗"
    - **回归猎手**:改了 A 会不会坏 B——全搜调用方与依赖方,列受影响面
    - **简洁批评家**:过度设计、可删代码、认知成本、撒谎的命名

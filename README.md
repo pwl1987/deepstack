@@ -1,52 +1,75 @@
 # DeepStack 深栈
 
-> if you want to go fast, go deep first.
-> 严谨工程工作流插件:写得少,但写得更好。
+> 先把问题想清楚，再写足够少、能够证明的代码。
 
-灵感来自 [pstack](https://github.com/cursor/plugins/tree/main/pstack)(Lauren Tan),借鉴其"路由 → 工作流 → 原则"三层结构,内容全部中文重写,适配 ZCode / Claude Code 双宿主。
+DeepStack 是一个以 pstack 为骨架的工程工作流插件。用户只需要调用一个入口：`/deepstack`。它先判断任务类型，再按需组合内部工作流、质量门和证据报告。
 
-## 12 个 Skills
+DeepStack 不把“更多模型、更多代理、更多命令”当作质量。默认目标是：最小必要改动、清晰边界、真实验证和可恢复的工作状态。
 
-| 类别 | Skill | 用途 |
-|---|---|---|
-| 路由 | `deepstack` | 任务分类派发 + 模型映射(入口) |
-| 修复 | `deep-fix` | 根因修复:先复现、5-why、影响面、回归钉 |
-| 实现 | `tdd` | 红-绿-重构 + 证据门 |
-| 设计 | `architect` | 穷尽设计空间、方案对比、二阶影响 |
-| 重构 | `refactor` | 等价变换:先减后加、迁移即删 |
-| 交付 | `ship` | 交付检查单:边界/体积/UI/回滚 |
-| 复盘 | `reflect` | 返工根因 → 固化为规则/自动化/skill |
-| 续接 | `pickup` | 新会话重建上下文,已决事项不重问 |
-| 并行 | `arena` | N 模型并行出方案 → 三模型面板投票 |
-| 并行 | `swarm` | 真独立子任务蜂群,worker 证明义务 |
-| 并行 | `interrogate` | 三 persona 对抗审查 diff(P0 必堵) |
-| 原则 | `principles` | 24 条工程原则合订本,按组按需加载 |
+## 唯一入口
+
+```text
+/deepstack 修复导出丢失最后一行的问题，先复现，只修改本地代码并给出测试证据
+```
+
+路由器会自动选择调查、修复、功能、重构、续接或交付流程。`tdd`、`architect`、`arena`、`interrogate`、`ship` 和 `quality-gate` 是内部步骤，不要求用户记忆。
+
+每次开始时输出：
+
+```text
+路由：bug-fix
+理由：已有可观察的错误行为，需要先复现并固定回归行为。
+内部步骤：架构判断 → TDD → 质量门
+写入范围：当前工作区；外部系统需授权
+完成证据：原始失败、修复后通过和相邻测试结果
+```
+
+## 设计骨架
+
+| 层 | 责任 |
+|---|---|
+| 路由 | 从自然语言任务选择一个主流程 |
+| 工作流 | 调查、修复、功能、重构、续接、交付 |
+| 原则 | 最小改动、根因优先、边界清晰、行为验证、可恢复执行 |
+| 质量门 | 格式、lint、类型/编译、测试、安全检查；只使用项目已有入口 |
+| 证据 | 命令、结果、覆盖范围、未验证项和剩余风险 |
+
+## 内部技能
+
+- `deep-fix`：复现、根因、回归验证
+- `tdd`：行为契约和红-绿-重构
+- `architect`：跨边界设计和方案选择
+- `refactor`：特征测试、等价迁移和删除旧接口
+- `arena` / `swarm`：仅在宿主能力和任务依赖实际满足时使用
+- `interrogate`：高风险或大 diff 的独立审查
+- `quality-gate`：项目感知的格式、静态检查、类型检查、测试和安全检查
+- `ship` / `reflect` / `pickup`：交付、复盘和续接
+
+## 质量和授权边界
+
+质量门优先读取项目已有的 scripts、Makefile、CI 和贡献文档，不自动安装工具。只读任务不会写工作区或外部系统。提交、推送、PR、合并、发布和持久记忆修改只在用户明确授权范围内执行。
+
+没有运行证据的结果会标为 `NOT_CONFIGURED`、`SKIPPED` 或 `UNVERIFIED`，不会写成通过。
 
 ## 安装
 
 ### Claude Code
-```
+
+```text
 /plugin marketplace add pwl1987/deepstack
 /plugin install deepstack@deepstack
 ```
 
-### ZCode
-插件市场 → 添加 → 添加插件市场 → 粘贴本仓库 clone 后的本地路径,然后在个人市场里安装。
-(远程仓库作为市场源的支持因版本而异,本地 clone 最稳。)
+### 其他支持 Agent Skills 的宿主
 
-### 其他 Agent
-skills 是纯 markdown(SKILL.md + name/description frontmatter),直接把 `skills/` 下任意目录拷进你的 agent 的技能目录即可;或把本仓库地址写进你的 AGENTS.md/CLAUDE.md 作为参考。
+将 `skills/` 安装到宿主的技能目录，然后调用 `/deepstack`。宿主不支持技能命令时，可以把 `skills/deepstack/SKILL.md` 作为项目规则入口，但自动路由、内部技能调用和质量门能力取决于宿主。
 
-## 多模型评审面板
+## 验证插件自身
 
-`arena` / `swarm` / `interrogate` 运行时先探测宿主可用模型,按下表取票:
-
-| 角色 | 模型 |
-|---|---|
-| 执行 / 终审 | GLM-5.3(max) |
-| 评审一票 ×3 | GLM-5.3-Flash / huihui-qwen3.8 / MiniMax-M3.1-Flash |
-
-模型 ID 以运行时探测为准,换套餐无需改插件;探测失败自动降级(code-mate CLI → 单模型多 persona)。
+```bash
+node scripts/check-plugin.mjs
+claude plugin validate .claude-plugin/plugin.json --strict
+```
 
 ## License
 
