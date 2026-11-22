@@ -21,7 +21,7 @@
 | Claude Code 2.1.330 | `--permission-mode plan`、会话持久化、`--resume`、`--continue` 和后台会话 | 本机临时会话两轮读回 `GOAL_PROBE_CLAUDE_20261122` | 可恢复会话确认；原生 Goal 对象未单独观察 |
 | Codex CLI 0.166.0 | `codex exec resume` 和持久线程 | 本机临时线程两轮读回 `GOAL_PROBE_CODEX_20261122` | 可恢复会话确认；CLI 未观察到独立 Goal 对象 |
 | Pi Agent 1.6.0 | `--session`、`--continue`、`--resume` 和会话文件 | `/tmp/deepstack-pi-probe.jsonl` 两轮读回 `GOAL_PROBE_PI_20261122` | 可恢复会话确认；原生 Goal 对象未单独观察 |
-| ZCode 3.19.1 | 观察到项目/任务列表和活跃任务；命令中心未找到 Goal、目标或计划操作 | 未做独立重启/恢复探针，避免打断当前活跃任务 | 部分确认：原生任务面存在，原生 Goal 与跨会话恢复未确认 |
+| ZCode 3.19.1 | 在对话输入 `/goal` 后，命令提示明确显示 `命令 /goal — Show or set the current session goal`；同时观察到项目/任务列表和活跃任务 | 未发送命令，也未做独立重启/恢复探针，避免改变当前任务 | 原生 Goal 命令确认；跨会话恢复未验证 |
 | MiniMax Code 3.1.17 | 当前任务界面明确显示 `Goal @ROADMAP.md`、`进行中`、`暂停`、`清除目标`，任务列表中也有长期任务 | 现有活跃 Goal 可见；未暂停或重启用户现有任务做破坏性恢复探针 | 原生 Goal 界面确认；独立跨重启恢复未验证 |
 
 ## 证据边界
