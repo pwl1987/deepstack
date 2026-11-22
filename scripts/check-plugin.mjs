@@ -179,6 +179,25 @@ if (!hostCapabilities || hostCapabilities.version !== 1 || !Array.isArray(hostCa
   if (hostCapabilities.hosts.length < 5) errors.push("evals/host-capabilities.json: need at least five host records");
 }
 
+const modelPolicy = readJsonFile("evals/model-policy.json");
+if (!modelPolicy || modelPolicy.version !== 1 || !Array.isArray(modelPolicy.tiers) || !Array.isArray(modelPolicy.cases)) {
+  errors.push("evals/model-policy.json: expected version 1, tiers, and cases");
+} else {
+  for (const tier of ["L0", "L1", "L2"]) {
+    if (!modelPolicy.tiers.includes(tier)) errors.push(`evals/model-policy.json: missing tier ${tier}`);
+  }
+  if (modelPolicy.singleModelFallback !== "SAME_MODEL_REVIEW") {
+    errors.push("evals/model-policy.json: singleModelFallback must be SAME_MODEL_REVIEW");
+  }
+  const modelCaseIds = new Set();
+  for (const item of modelPolicy.cases) {
+    if (!item.id || modelCaseIds.has(item.id)) errors.push("evals/model-policy.json: duplicate or missing case id");
+    if (!item.expectedTier && !item.expectedFallback) errors.push(`evals/model-policy.json: ${item.id || "<unknown>"} needs expectedTier or expectedFallback`);
+    if (item.expectedTier && !modelPolicy.tiers.includes(item.expectedTier)) errors.push(`evals/model-policy.json: ${item.id} has invalid tier`);
+    modelCaseIds.add(item.id);
+  }
+}
+
 for (const file of markdownFiles(skillsRoot)) {
   const text = fs.readFileSync(file, "utf8");
   const relativePath = path.relative(root, file);

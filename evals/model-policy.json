@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "tiers": ["L0", "L1", "L2"],
+  "singleModelFallback": "SAME_MODEL_REVIEW",
+  "criticalTriggers": [
+    "security",
+    "data-migration",
+    "production",
+    "external-write",
+    "large-diff"
+  ],
+  "cases": [
+    {"id": "bounded-local-fix", "expectedTier": "L0"},
+    {"id": "multi-file-feature", "expectedTier": "L1"},
+    {"id": "production-migration", "expectedTier": "L2"},
+    {"id": "single-model-critical", "expectedFallback": "SAME_MODEL_REVIEW"}
+  ]
+}
