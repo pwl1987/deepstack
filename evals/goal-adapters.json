@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "adapters": [
+    {"host": "zcode", "mode": "goal-command", "entry": "/goal", "persistence": "native-session-goal", "fallback": "pickup"},
+    {"host": "minimax-code", "mode": "goal-ui", "entry": "Goal control", "persistence": "native-session-goal", "fallback": "pickup"},
+    {"host": "claude-code", "mode": "plan-session", "entry": "plan permission + resume", "persistence": "native-session", "fallback": "pickup"},
+    {"host": "codex-cli", "mode": "plan-session", "entry": "persistent thread + exec resume", "persistence": "native-session", "fallback": "pickup"},
+    {"host": "pi-agent", "mode": "plan-session", "entry": "session file + resume", "persistence": "native-session", "fallback": "pickup"}
+  ]
+}

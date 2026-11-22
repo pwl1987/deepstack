@@ -198,6 +198,23 @@ if (!modelPolicy || modelPolicy.version !== 1 || !Array.isArray(modelPolicy.tier
   }
 }
 
+const goalAdapters = readJsonFile("evals/goal-adapters.json");
+if (!goalAdapters || goalAdapters.version !== 1 || !Array.isArray(goalAdapters.adapters)) {
+  errors.push("evals/goal-adapters.json: expected version 1 and adapters");
+} else {
+  const adapterHosts = new Set();
+  for (const adapter of goalAdapters.adapters) {
+    if (!adapter.host || adapterHosts.has(adapter.host)) errors.push("evals/goal-adapters.json: duplicate or missing host");
+    if (!adapter.mode || !adapter.entry || !adapter.persistence || !adapter.fallback) {
+      errors.push(`evals/goal-adapters.json: ${adapter.host || "<unknown>"} needs mode, entry, persistence, and fallback`);
+    }
+    adapterHosts.add(adapter.host);
+  }
+  for (const host of ["claude-code", "codex-cli", "pi-agent", "zcode", "minimax-code"]) {
+    if (!adapterHosts.has(host)) errors.push(`evals/goal-adapters.json: missing adapter for ${host}`);
+  }
+}
+
 for (const file of markdownFiles(skillsRoot)) {
   const text = fs.readFileSync(file, "utf8");
   const relativePath = path.relative(root, file);
