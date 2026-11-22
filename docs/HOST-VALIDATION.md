@@ -34,4 +34,4 @@
 
 ## 模型策略跨宿主探针
 
-2026-11-23 使用同一条生产认证字段迁移输入做单模型路由检查：Claude Code 已加载 DeepStack，输出 `L2 + SAME_MODEL_REVIEW`；Codex CLI 的直接调用未加载仓库内 DeepStack 路由，输出了自定义模型档位；Pi Agent 的显式技能调用也未输出 DeepStack 的 `L2/SAME_MODEL_REVIEW` 契约。后两者标为 `ROUTER_UNVERIFIED`，不把宿主自身的模型建议当作 DeepStack 结果。机器可读记录见 [model-policy.json](../evals/model-policy.json)。
+2026-11-23 使用同一条生产认证字段迁移输入做单模型路由检查：Claude Code 已加载 DeepStack，输出 `L2 + SAME_MODEL_REVIEW`；Codex CLI 安装 `deepstack@deepstack` 后使用 `$deepstack`，输出 `L2 + SAME_MODEL_REVIEW`；Pi Agent 即使通过 `$deepstack` 加载技能，仍把纯文本计划降为低档模型，未输出 DeepStack 的 `L2/SAME_MODEL_REVIEW` 契约。Pi 标为 `ROUTER_UNVERIFIED`，不把宿主自身的模型建议当作 DeepStack 结果。机器可读记录见 [model-policy.json](../evals/model-policy.json)。

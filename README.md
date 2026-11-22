@@ -71,6 +71,18 @@ Mac 宿主的实际验证范围、版本和未验证项见 [宿主验证记录](
 /plugin install deepstack@deepstack
 ```
 
+### Codex CLI
+
+在 Codex CLI 中先把仓库加入插件 marketplace，再安装 `deepstack`；Codex 的用户技能入口使用 `$deepstack`：
+
+```text
+codex plugin marketplace add pwl1987/deepstack --ref improve/single-entry-routing-quality-gates
+codex plugin add deepstack@deepstack
+$deepstack 修复导出丢失最后一行的问题，先复现并给出测试证据
+```
+
+当前 Codex CLI 的单模型生产迁移探针已返回 `L2 + SAME_MODEL_REVIEW`。插件未安装或没有确认技能加载时，必须标记 `ROUTER_UNVERIFIED`。
+
 ### ZCode
 
 在插件市场添加本仓库并安装 `deepstack`。本仓库保留 `.zcode-plugin/` 清单；如果客户端无法访问本地路径，可使用公开 GitHub 仓库的默认分支。当前 ZCode 客户端不接受 GitHub 分支页面 URL 作为 marketplace 地址，因此 PR 分支需要先合并或通过客户端支持的归档/本地方式提供。安装成功后应在插件卡片或会话中看到 `deepstack`。
@@ -81,7 +93,7 @@ Mac 宿主的实际验证范围、版本和未验证项见 [宿主验证记录](
 
 ### 其他支持 Agent Skills 的宿主
 
-将 `skills/` 安装到宿主的技能目录，然后调用 `/deepstack`。宿主不支持技能命令时，可以把 `skills/deepstack/SKILL.md` 作为项目规则入口，但自动路由、内部技能调用和质量门能力取决于宿主；没有确认 `single-entry` 和 `skill-loading` 时，必须标记 `ROUTER_UNVERIFIED`，不能宣称 DeepStack 的模型升级已生效。
+将 `skills/` 安装到宿主的技能目录，然后使用宿主的用户技能入口（例如 `/deepstack` 或 `$deepstack`）。宿主不支持技能命令时，可以把 `skills/deepstack/SKILL.md` 作为项目规则入口，但自动路由、内部技能调用和质量门能力取决于宿主；没有确认 `single-entry` 和 `skill-loading` 时，必须标记 `ROUTER_UNVERIFIED`，不能宣称 DeepStack 的模型升级已生效。
 
 ## 验证插件自身
 
