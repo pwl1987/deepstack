@@ -205,6 +205,18 @@ if (!modelPolicy || modelPolicy.version !== 1 || !Array.isArray(modelPolicy.tier
       errors.push("evals/model-policy.json: latestProbe needs at least three cases");
     }
   }
+  if (modelPolicy.crossHostProbe) {
+    const allowedProbeStatuses = new Set(["PASS", "ROUTER_UNVERIFIED", "NOT_RUN"]);
+    if (!modelPolicy.crossHostProbe.date || !Array.isArray(modelPolicy.crossHostProbe.cases)) {
+      errors.push("evals/model-policy.json: crossHostProbe needs date and cases");
+    } else {
+      for (const item of modelPolicy.crossHostProbe.cases) {
+        if (!item.host || !item.evidence || !allowedProbeStatuses.has(item.status)) {
+          errors.push(`evals/model-policy.json: invalid crossHostProbe record for ${item.host || "<unknown>"}`);
+        }
+      }
+    }
+  }
 }
 
 const goalAdapters = readJsonFile("evals/goal-adapters.json");

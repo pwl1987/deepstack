@@ -31,3 +31,7 @@
 - ZCode 的分支限制和 MiniMax Code 的多项目边界已经写入 README；后续宿主版本变化后应重新验证。
 - 会话恢复探针使用临时目录和只读工具，没有修改 DeepStack 仓库；Claude/Codex/Pi 的标记往返证明的是会话恢复，不证明宿主有独立 Goal 调度器。
 - MiniMax Code 的 Goal 控件来自当前已有任务；没有暂停、删除或重启该用户任务，因此跨重启恢复仍保持未验证。
+
+## 模型策略跨宿主探针
+
+2026-11-23 使用同一条生产认证字段迁移输入做单模型路由检查：Claude Code 已加载 DeepStack，输出 `L2 + SAME_MODEL_REVIEW`；Codex CLI 的直接调用未加载仓库内 DeepStack 路由，输出了自定义模型档位；Pi Agent 的显式技能调用也未输出 DeepStack 的 `L2/SAME_MODEL_REVIEW` 契约。后两者标为 `ROUTER_UNVERIFIED`，不把宿主自身的模型建议当作 DeepStack 结果。机器可读记录见 [model-policy.json](../evals/model-policy.json)。

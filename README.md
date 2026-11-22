@@ -81,7 +81,7 @@ Mac 宿主的实际验证范围、版本和未验证项见 [宿主验证记录](
 
 ### 其他支持 Agent Skills 的宿主
 
-将 `skills/` 安装到宿主的技能目录，然后调用 `/deepstack`。宿主不支持技能命令时，可以把 `skills/deepstack/SKILL.md` 作为项目规则入口，但自动路由、内部技能调用和质量门能力取决于宿主。
+将 `skills/` 安装到宿主的技能目录，然后调用 `/deepstack`。宿主不支持技能命令时，可以把 `skills/deepstack/SKILL.md` 作为项目规则入口，但自动路由、内部技能调用和质量门能力取决于宿主；没有确认 `single-entry` 和 `skill-loading` 时，必须标记 `ROUTER_UNVERIFIED`，不能宣称 DeepStack 的模型升级已生效。
 
 ## 验证插件自身
 

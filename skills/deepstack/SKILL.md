@@ -2,6 +2,7 @@
 name: deepstack
 description: Single entry point for rigorous engineering work. Describe the goal in plain language; DeepStack selects one primary workflow, adds only the necessary internal gates, and reports evidence. Use when invoking /deepstack or asking for DeepStack routing.
 disable-model-invocation: true
+user-invocable: true
 ---
 
 # DeepStack 路由器
@@ -32,6 +33,7 @@ disable-model-invocation: true
 3. 只有范围小、目标清楚、可逆且没有外部写入时才是 `L0`。
 4. `L2` 没有独立模型或独立上下文时，必须输出 `SAME_MODEL_REVIEW`，并暂停外部写入；主模型不能把自己称为独立审查。
 5. 质量门失败、同一问题连续返工或证据缺失时，立即升级一级，不因当前主流程是调查而降级。
+6. 如果当前宿主没有确认 `single-entry` 和 `skill-loading`，输出 `路由器状态：UNVERIFIED`；不得把模型自选的档位、模型名称或审查描述写成 DeepStack 的自动升级结果。
 
 ## 共同不变量
 
