@@ -81,7 +81,7 @@ codex plugin add deepstack@deepstack
 $deepstack 修复导出丢失最后一行的问题，先复现并给出测试证据
 ```
 
-当前 Codex CLI 的单模型生产迁移探针已返回 `L2 + SAME_MODEL_REVIEW`。插件未安装或没有确认技能加载和 `model-policy` 时，必须标记 `ROUTER_UNVERIFIED`。
+当前 Codex CLI 已确认能加载 `$deepstack`，但单模型生产迁移探针没有返回规定的 `L2 + SAME_MODEL_REVIEW` 字段，因此 `model-policy` 仍是 `ROUTER_UNVERIFIED`。插件未安装或没有确认技能加载和 `model-policy` 时，必须标记 `ROUTER_UNVERIFIED`。
 
 ### ZCode
 

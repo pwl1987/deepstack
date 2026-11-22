@@ -3,7 +3,7 @@
   "capabilities": ["single-entry", "skill-loading", "readonly-execution", "parallel-agents", "isolated-workspace", "external-cli", "quality-gate", "native-goal", "session-recovery", "model-policy"],
   "hosts": [
     {"id": "claude-code", "confirmed": ["single-entry", "skill-loading", "readonly-execution", "quality-gate", "native-goal", "session-recovery", "model-policy"], "unknown": ["parallel-agents", "isolated-workspace", "external-cli"]},
-    {"id": "codex-cli", "confirmed": ["single-entry", "skill-loading", "readonly-execution", "native-goal", "session-recovery", "model-policy"], "unknown": ["parallel-agents", "isolated-workspace", "external-cli", "quality-gate"]},
+    {"id": "codex-cli", "confirmed": ["single-entry", "skill-loading", "readonly-execution", "native-goal", "session-recovery"], "unknown": ["parallel-agents", "isolated-workspace", "external-cli", "quality-gate", "model-policy"]},
     {"id": "pi-agent", "confirmed": ["single-entry", "skill-loading", "readonly-execution", "native-goal", "session-recovery"], "unknown": ["parallel-agents", "isolated-workspace", "external-cli", "quality-gate", "model-policy"]},
     {"id": "zcode", "confirmed": ["skill-loading", "native-goal"], "unknown": ["single-entry", "readonly-execution", "parallel-agents", "isolated-workspace", "external-cli", "quality-gate", "session-recovery", "model-policy"]},
     {"id": "minimax-code", "confirmed": ["skill-loading", "readonly-execution", "native-goal"], "unknown": ["single-entry", "parallel-agents", "isolated-workspace", "external-cli", "quality-gate", "session-recovery", "model-policy"]}

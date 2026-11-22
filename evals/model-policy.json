@@ -32,7 +32,7 @@
     "date": "2026-11-23",
     "cases": [
       {"host": "claude-code", "status": "PASS", "evidence": "Router loaded; single-model L0/L1/L2 probe passed."},
-      {"host": "codex-cli", "status": "PASS", "evidence": "Installed deepstack@deepstack from the local marketplace and invoked $deepstack; production migration returned L2 + SAME_MODEL_REVIEW."},
+      {"host": "codex-cli", "status": "ROUTER_UNVERIFIED", "evidence": "Installed deepstack@deepstack from the local marketplace and invoked $deepstack; the loaded skill returned route=architect and risk_level=high but did not emit the required L2/SAME_MODEL_REVIEW fields."},
       {"host": "pi-agent", "status": "ROUTER_UNVERIFIED", "evidence": "Explicit skill invocation did not produce the DeepStack L2/SAME_MODEL_REVIEW contract; model output supplied its own model names."}
     ]
   }
