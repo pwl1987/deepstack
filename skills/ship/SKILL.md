@@ -1,6 +1,7 @@
 ---
 name: ship
 description: Internal pre-delivery verification. Use before declaring a task complete or preparing an authorized PR. It checks evidence, quality gates, edge cases, rollback, and diff hygiene without assuming external write permission.
+user-invocable: false
 ---
 
 # ship 交付检查单

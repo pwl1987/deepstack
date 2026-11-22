@@ -1,6 +1,7 @@
 ---
 name: interrogate
 description: Adversarial multi-model diff interrogation. Use before high-risk merges or after large or security-sensitive changes. Three models attack the diff with distinct personas; P0 findings must be fixed before merge.
+user-invocable: false
 ---
 
 # interrogate 多模型对抗审查

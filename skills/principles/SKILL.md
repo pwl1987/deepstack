@@ -1,6 +1,7 @@
 ---
 name: principles
 description: Index of 23 DeepStack engineering principles. Load the core group and only the reference group required by the selected workflow; do not load every principle into context.
+user-invocable: false
 ---
 
 # DeepStack 原则索引

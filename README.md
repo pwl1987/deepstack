@@ -16,7 +16,7 @@ Mac 宿主的实际验证范围、版本和未验证项见 [宿主验证记录](
 /deepstack 修复导出丢失最后一行的问题，先复现，只修改本地代码并给出测试证据
 ```
 
-路由器会自动选择调查、修复、功能、重构、续接或交付流程。`tdd`、`architect`、`arena`、`interrogate`、`ship` 和 `quality-gate` 是内部步骤，不要求用户记忆。
+路由器会自动选择调查、修复、功能、重构、续接或交付流程。内部技能在支持该元数据的宿主中标记为不可直接调用；用户只需要记住 `/deepstack`，模型由路由器按需组合 `tdd`、`architect`、`arena`、`interrogate`、`ship` 和 `quality-gate`。
 
 每次开始时输出：
 

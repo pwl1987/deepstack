@@ -1,6 +1,7 @@
 ---
 name: arena
 description: Optional parallel implementation arena. Use when several viable approaches exist and picking wrong is costly. It requires verified host support for isolated candidates and independent review; otherwise it reports a scoped fallback.
+user-invocable: false
 ---
 
 # arena 多模型并行竞技

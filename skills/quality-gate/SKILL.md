@@ -1,6 +1,7 @@
 ---
 name: quality-gate
 description: Project-aware verification gate. Detects existing formatting, lint, typecheck, test, and security commands, runs only authorized checks, and reports evidence without installing tools.
+user-invocable: false
 ---
 
 # Quality gate 质量门

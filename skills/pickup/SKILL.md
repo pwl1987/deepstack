@@ -1,6 +1,7 @@
 ---
 name: pickup
 description: Session pickup / context reconstruction. Use when continuing work in a fresh session or after context loss — reconstructs state from git history, working tree, and recorded decisions without re-asking settled questions.
+user-invocable: false
 ---
 
 # pickup 续接上下文

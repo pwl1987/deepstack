@@ -1,6 +1,7 @@
 ---
 name: refactor
 description: Behavior-preserving refactoring workflow. Use when improving structure without changing behavior. Enforces characterization tests first, subtract-before-add, migrate-callers-then-delete, and a cognitive-cost audit.
+user-invocable: false
 ---
 
 # refactor 等价重构

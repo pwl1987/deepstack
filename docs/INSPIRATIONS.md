@@ -6,7 +6,7 @@ DeepStack 的实现借鉴了多个公开项目的工作流思想，但没有把�
 |---|---|---|
 | [Cursor pstack](https://github.com/cursor/plugins/tree/main/pstack) | 单一入口、任务路由、工程原则、按需组合内部步骤，以及 arena/swarm/interrogate 的能力边界意识 | 直接设计骨架；上游 MIT，DeepStack 不是上游代码的副本 |
 | [obra/superpowers](https://github.com/obra/superpowers) | 需求澄清、计划、TDD、系统化调试、代码审查和交付门 | 方法参考；未复制其实现 |
-| [mattpocock/skills](https://github.com/mattpocock/skills) | 面向真实软件工程的任务拆解、测试和审查习惯 | 方法参考；未复制其实现 |
+| [mattpocock/skills](https://github.com/mattpocock/skills) | 面向真实软件工程的任务拆解、测试和审查习惯；区分用户调用与模型调用技能 | 方法参考；DeepStack 将这一分层用于隐藏内部技能，未复制其实现 |
 | [wshobson/agents](https://github.com/wshobson/agents) | 模块化技能和专门角色的组织方式 | 组织方式参考；未引入其代理包 |
 | [github/spec-kit](https://github.com/github/spec-kit) | 先定义目标、规格和验收证据 | 规格方法参考；不依赖其工具链 |
 | [anthropics/skills](https://github.com/anthropics/skills) | 技能目录、宿主边界和可组合技能的表达方式 | 技能规范参考；不声称兼容其全部宿主行为 |

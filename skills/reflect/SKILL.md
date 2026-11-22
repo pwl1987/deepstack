@@ -1,6 +1,7 @@
 ---
 name: reflect
 description: Post-task retrospective. Use after finishing a task, and especially after rework, rollback, or fixing the same class of problem a second time. Extracts the common root cause and encodes it into rules, automation, or skills — not advice.
+user-invocable: false
 ---
 
 # reflect 复盘沉淀

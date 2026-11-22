@@ -100,6 +100,12 @@ for (const dir of skillDirs) {
   const fields = parseFrontmatter(fs.readFileSync(file, "utf8"), relativePath);
   if (!fields.name) errors.push(`${relativePath}: missing frontmatter name`);
   if (!fields.description) errors.push(`${relativePath}: missing frontmatter description`);
+  if (dir.name === "deepstack" && fields["disable-model-invocation"] !== "true") {
+    errors.push(`${relativePath}: router must disable model invocation`);
+  }
+  if (dir.name !== "deepstack" && fields["user-invocable"] !== "false") {
+    errors.push(`${relativePath}: internal skill must set user-invocable: false`);
+  }
   if (fields.name && fields.name !== dir.name) {
     errors.push(`${relativePath}: name '${fields.name}' does not match directory '${dir.name}'`);
   }

@@ -1,6 +1,7 @@
 ---
 name: swarm
 description: Parallel worker swarm for genuinely independent subtasks. Use when a task decomposes into isolated units of work. Enforces dependency analysis first, per-worker proof-of-work, and serialized handling of shared state.
+user-invocable: false
 ---
 
 # swarm 并行蜂群
