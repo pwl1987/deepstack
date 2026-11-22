@@ -71,6 +71,8 @@ node scripts/check-plugin.mjs
 claude plugin validate .claude-plugin/plugin.json --strict
 ```
 
+`evals/router-cases.json` 是路由契约样例。它检查案例覆盖和文件结构，不等同于真实模型行为评估；真实路由效果仍需在目标宿主和模型上运行盲测。
+
 ## License
 
 MIT

@@ -5,6 +5,15 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const errors = [];
 
+function readJsonFile(relativePath) {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(root, relativePath), "utf8"));
+  } catch (error) {
+    errors.push(`${relativePath}: invalid or unreadable JSON (${error.message})`);
+    return null;
+  }
+}
+
 function readJson(relativePath) {
   const file = path.join(root, relativePath);
   try {
@@ -87,6 +96,28 @@ for (const dir of skillDirs) {
 
 if (!fs.existsSync(skillsRoot)) errors.push("skills/: missing directory");
 
+const routeCases = readJsonFile("evals/router-cases.json");
+const allowedRoutes = new Set(["investigation", "pickup", "delivery", "bug-fix", "refactor", "feature"]);
+if (!routeCases || routeCases.version !== 1 || !Array.isArray(routeCases.cases)) {
+  errors.push("evals/router-cases.json: expected version 1 and a cases array");
+} else {
+  const caseIds = new Set();
+  const routes = new Set();
+  if (routeCases.cases.length < 6) errors.push("evals/router-cases.json: need at least one case per route");
+  for (const item of routeCases.cases) {
+    if (!item.id || caseIds.has(item.id)) errors.push("evals/router-cases.json: duplicate or missing case id");
+    if (!item.prompt) errors.push(`evals/router-cases.json: ${item.id || "<unknown>"} missing prompt`);
+    if (!allowedRoutes.has(item.expectedRoute)) {
+      errors.push(`evals/router-cases.json: ${item.id || "<unknown>"} has invalid expectedRoute`);
+    }
+    caseIds.add(item.id);
+    routes.add(item.expectedRoute);
+  }
+  for (const route of allowedRoutes) {
+    if (!routes.has(route)) errors.push(`evals/router-cases.json: no case covers ${route}`);
+  }
+}
+
 for (const file of markdownFiles(skillsRoot)) {
   const text = fs.readFileSync(file, "utf8");
   const relativePath = path.relative(root, file);
@@ -102,5 +133,5 @@ if (errors.length) {
   console.error(errors.map((error) => `ERROR ${error}`).join("\n"));
   process.exitCode = 1;
 } else {
-  console.log(`OK plugin manifests=${manifests.length} skills=${names.size}`);
+  console.log(`OK plugin manifests=${manifests.length} skills=${names.size} route_cases=${routeCases.cases.length}`);
 }
