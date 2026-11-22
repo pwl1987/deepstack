@@ -1,0 +1,13 @@
+{
+  "name": "deepstack",
+  "owner": { "name": "pwl1987" },
+  "plugins": [
+    {
+      "name": "deepstack",
+      "source": "./",
+      "version": "0.1.0",
+      "description": "Rigorous engineering workflows: routing, multi-model parallel review, 24 principles.",
+      "category": "developer-tools"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "deepstack",
+  "version": "0.1.0",
+  "description": "Rigorous engineering workflows: route-first triage, multi-model parallel review (arena/swarm/interrogate), 24 distilled engineering principles. Write less, but higher quality code.",
+  "author": { "name": "pwl" },
+  "skills": "./skills"
+}
