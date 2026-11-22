@@ -10,6 +10,8 @@ DeepStack 不把“更多模型、更多代理、更多命令”当作质量。�
 
 Mac 宿主的实际验证范围、版本和未验证项见 [宿主验证记录](docs/HOST-VALIDATION.md)。
 
+路由基准和内部步骤的宿主能力探测规则见 [宿主路由基准](evals/host-routing-benchmark.json)、[能力矩阵](evals/host-capabilities.json) 和 [宿主能力探测协议](docs/HOST-CAPABILITIES.md)。
+
 ## 唯一入口
 
 ```text

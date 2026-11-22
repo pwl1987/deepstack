@@ -137,6 +137,48 @@ if (!routeCases || routeCases.version !== 1 || !Array.isArray(routeCases.cases))
   }
 }
 
+const hostBenchmark = readJsonFile("evals/host-routing-benchmark.json");
+const allowedStatuses = new Set(["PASS", "PARTIAL", "NOT_RUN"]);
+if (!hostBenchmark || hostBenchmark.version !== 1 || !hostBenchmark.case || !Array.isArray(hostBenchmark.hosts)) {
+  errors.push("evals/host-routing-benchmark.json: expected version 1, case, and hosts array");
+} else {
+  if (!hostBenchmark.case.id || !hostBenchmark.case.prompt || !hostBenchmark.case.expectedRoute) {
+    errors.push("evals/host-routing-benchmark.json: case needs id, prompt, and expectedRoute");
+  }
+  const hostIds = new Set();
+  for (const host of hostBenchmark.hosts) {
+    if (!host.id || hostIds.has(host.id)) errors.push("evals/host-routing-benchmark.json: duplicate or missing host id");
+    if (!allowedStatuses.has(host.status)) errors.push(`evals/host-routing-benchmark.json: ${host.id || "<unknown>"} has invalid status`);
+    if (!host.version || !host.evidence) errors.push(`evals/host-routing-benchmark.json: ${host.id || "<unknown>"} needs version and evidence`);
+    hostIds.add(host.id);
+  }
+  if (hostBenchmark.hosts.length < 5) errors.push("evals/host-routing-benchmark.json: need at least five host records");
+}
+
+const hostCapabilities = readJsonFile("evals/host-capabilities.json");
+if (!hostCapabilities || hostCapabilities.version !== 1 || !Array.isArray(hostCapabilities.capabilities) || !Array.isArray(hostCapabilities.hosts)) {
+  errors.push("evals/host-capabilities.json: expected version 1, capabilities, and hosts arrays");
+} else {
+  const capabilitySet = new Set(hostCapabilities.capabilities);
+  const capabilityHosts = new Set();
+  for (const host of hostCapabilities.hosts) {
+    if (!host.id || capabilityHosts.has(host.id)) errors.push("evals/host-capabilities.json: duplicate or missing host id");
+    const confirmed = new Set(host.confirmed || []);
+    const unknown = new Set(host.unknown || []);
+    for (const capability of [...confirmed, ...unknown]) {
+      if (!capabilitySet.has(capability)) errors.push(`evals/host-capabilities.json: unknown capability ${capability}`);
+    }
+    for (const capability of confirmed) {
+      if (unknown.has(capability)) errors.push(`evals/host-capabilities.json: ${host.id} marks ${capability} confirmed and unknown`);
+    }
+    if (confirmed.size + unknown.size !== capabilitySet.size) {
+      errors.push(`evals/host-capabilities.json: ${host.id} does not account for every capability`);
+    }
+    capabilityHosts.add(host.id);
+  }
+  if (hostCapabilities.hosts.length < 5) errors.push("evals/host-capabilities.json: need at least five host records");
+}
+
 for (const file of markdownFiles(skillsRoot)) {
   const text = fs.readFileSync(file, "utf8");
   const relativePath = path.relative(root, file);

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "capabilities": ["single-entry", "skill-loading", "readonly-execution", "parallel-agents", "isolated-workspace", "external-cli", "quality-gate"],
+  "hosts": [
+    {"id": "claude-code", "confirmed": ["single-entry", "skill-loading", "readonly-execution", "quality-gate"], "unknown": ["parallel-agents", "isolated-workspace", "external-cli"]},
+    {"id": "codex-cli", "confirmed": ["single-entry", "skill-loading", "readonly-execution"], "unknown": ["parallel-agents", "isolated-workspace", "external-cli", "quality-gate"]},
+    {"id": "pi-agent", "confirmed": ["single-entry", "skill-loading", "readonly-execution"], "unknown": ["parallel-agents", "isolated-workspace", "external-cli", "quality-gate"]},
+    {"id": "zcode", "confirmed": ["skill-loading"], "unknown": ["single-entry", "readonly-execution", "parallel-agents", "isolated-workspace", "external-cli", "quality-gate"]},
+    {"id": "minimax-code", "confirmed": ["skill-loading", "readonly-execution"], "unknown": ["single-entry", "parallel-agents", "isolated-workspace", "external-cli", "quality-gate"]}
+  ]
+}
