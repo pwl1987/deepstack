@@ -14,5 +14,18 @@
     {"id": "multi-file-feature", "expectedTier": "L1"},
     {"id": "production-migration", "expectedTier": "L2"},
     {"id": "single-model-critical", "expectedFallback": "SAME_MODEL_REVIEW"}
-  ]
+  ],
+  "latestProbe": {
+    "date": "2026-11-23",
+    "host": "claude-code",
+    "mode": "single-model",
+    "status": "PASS",
+    "scope": "routing-contract-only",
+    "cases": [
+      {"id": "bounded-local-fix", "observedTier": "L0", "status": "PASS"},
+      {"id": "multi-file-feature", "observedTier": "L1", "status": "PASS"},
+      {"id": "production-migration", "observedTier": "L2", "observedFallback": "SAME_MODEL_REVIEW", "status": "PASS"}
+    ],
+    "limitation": "No implementation, quality gate, independent review, or deployment was executed."
+  }
 }

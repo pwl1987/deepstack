@@ -196,6 +196,15 @@ if (!modelPolicy || modelPolicy.version !== 1 || !Array.isArray(modelPolicy.tier
     if (item.expectedTier && !modelPolicy.tiers.includes(item.expectedTier)) errors.push(`evals/model-policy.json: ${item.id} has invalid tier`);
     modelCaseIds.add(item.id);
   }
+  if (modelPolicy.latestProbe) {
+    const probe = modelPolicy.latestProbe;
+    if (!probe.date || !probe.host || probe.mode !== "single-model" || probe.status !== "PASS" || probe.scope !== "routing-contract-only") {
+      errors.push("evals/model-policy.json: latestProbe must record a passing single-model routing-contract probe");
+    }
+    if (!Array.isArray(probe.cases) || probe.cases.length < 3) {
+      errors.push("evals/model-policy.json: latestProbe needs at least three cases");
+    }
+  }
 }
 
 const goalAdapters = readJsonFile("evals/goal-adapters.json");
