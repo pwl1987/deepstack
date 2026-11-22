@@ -7,9 +7,9 @@
     "requiredMarkers": ["路由", "理由"]
   },
   "hosts": [
-    {"id": "claude-code", "version": "2.1.328", "status": "PASS", "evidence": "真实插件目录只读冒烟返回 investigation 路由、只读范围和证据契约。"},
+    {"id": "claude-code", "version": "2.1.330", "status": "PASS", "evidence": "真实插件目录只读冒烟返回 investigation 路由、只读范围和证据契约。"},
     {"id": "codex-cli", "version": "0.166.0 CLI / exec 0.170.0", "status": "PASS", "evidence": "临时项目加载 skills，真实只读调查返回 investigation 和 app.js 行证据。"},
-    {"id": "pi-agent", "version": "1.5.2", "status": "PASS", "evidence": "通过 --skill 加载 DeepStack，返回 investigation、行证据，并正确标记运行验证边界。"},
+    {"id": "pi-agent", "version": "1.6.0", "status": "PASS", "evidence": "通过 --skill 加载 DeepStack，返回 investigation、行证据，并正确标记运行验证边界。"},
     {"id": "zcode", "version": "3.19.1", "status": "PARTIAL", "evidence": "默认分支安装和技能加载通过；本地路径与 GitHub 分支页面 URL 不可用，当前 PR 分支路由未验证。"},
     {"id": "minimax-code", "version": "3.1.17", "status": "PARTIAL", "evidence": "PR 分支导入、v0.2.0 预览、13 个技能加载和只读调查启动通过；多项目工作区导致最终规范化路由未完成。"}
   ]
