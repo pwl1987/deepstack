@@ -1,6 +1,6 @@
 # DeepStack 工程治理内核（Node.js）
 
-> 该模块从 TVNEWS 的 Python 工程流程中提取**可复用行为**，以原生 Node.js 实现；不包含 TVNEWS 的状态、业务契约、标签、原始脚本或私有记录。项目仓库仍然是唯一事实源。
+> 该模块从 TVNEWS 的 Python 工程流程中提取**可复用行为**，以原生 Node.js 实现；不包含 TVNEWS 的状态、业务契约、标签、原始脚本或私有记录。**TVNEWS 项目及其 Python 流程工具独立保留，DeepStack 不删除、不修改、不自动替换 TVNEWS。** 各项目仓库仍然是各自唯一事实源。
 
 ## 当前边界
 
@@ -92,6 +92,29 @@ node scripts/ci-evidence.mjs /path/to/project <完整40位实现提交SHA> --req
 
 `node scripts/verify.mjs` 会额外执行本模块的 Node 内建测试，包含分支限制、远端变化、脏工作树、锁冲突、凭证伪造、混合栈命令、越界拒绝、超时及 CI 缺失等反例。现有 Goal、宿主路由和质量门 schema 1 均保留。
 
+## Agent 项目冷启动（第四批：只读）
+
+`/deepstack` 的宿主 Agent 必须优先确认**目标仓库**及项目 Authority。DeepStack 新增只读 Node.js 入口，不复制 TVNEWS 任务、状态或规则，也不从 Issue 候选直接决定执行。
+
+```bash
+# 在 DeepStack 安装目录运行；可以传目标 Git 仓库或其任意子目录
+node scripts/project-doctor.mjs /path/to/project
+```
+
+输出 `READONLY_READY` / `BLOCKED` / `CONFLICT` / `UNKNOWN` / `NOT_CONFIGURED`；其中 `BLOCKED` 指不能自动写入，**不妨碍人工只读排障**。结果包括真实 Git 工作流检查、仓库权威文件**路径**、`.project/TODO.md` 中 `[>]` 声明的数量及有限摘要、根目录 Python/Node 探测。读取单条 CURRENT 只是识别**项目声明**，**不等于任务范围、Owner 授权或 Writer 准入**。遇到多条 CURRENT 会明确标记 `CONFLICT`；没有项目 `deepstack.config.json`，不猜测为 main-only，也不自行创建项目配置。探测不到技术栈不代表可以跳过验证；真正执行的检查仍由项目已授权的质量门清单定义。
+
+可选会话启动适配器：
+
+```bash
+# 当前 Agent 宿主允许配置 SessionStart 命令时，将此脚本作为命令钩子。
+# 宿主可通过 stdin 传入 JSON，包含 cwd；也可设置 DEEPSTACK_PROJECT_ROOT。
+node /path/to/deepstack/scripts/agent-preflight.mjs
+```
+
+此适配器只把简短的诊断结果注入当前会话，**不自动安装 Hook**、不取 Writer 锁、不签发开工凭证、不运行测试，也不进行 git commit/push。不同 Agent 的 Hook 注册格式须依各宿主的真实接口配置并单独验收；仅复制 SKILL.md、缺少 Node.js 或不可访问 DeepStack 脚本时，应显示 `NOT_CONFIGURED/UNKNOWN`，不能声称自动冷启动已验证。
+
+当目标仓库存在完整的项目 Authority 时，先由 Agent 读取相应文件和合同，再进入本仓库的受控 Git/质量门流程。避免另建通用任务阶段表、Goal 数据库或与既有 CURRENT 平行的第二套事实源。
+
 ## 暂存区一致性与只读评审证据（第三批）
 
 TVNEWS 原有的 `precommit_gate.py` 有潜在的「已暂存 A、工作区变为 B，却对 B 执行检查后提交 A」风险。新增纯 Node.js 检查，不重新实现 Python 或 Node 技术栈的测试框架：
@@ -167,4 +190,4 @@ node scripts/issue-governance.mjs matrix /path/to/project --issue 123 --write
 
 ## 尚未迁移
 
-TVNEWS 的 GitHub Issue 专属父子关系适配、S1–S9 阶段推导、完整 Review Pack、质量记分和进度视图**尚未搬入此核心**。这些能力需要先剥离 TVNEWS 业务语义，再用 Node.js 实现。不要复制旧 Python 脚本，也不要将当前工程模块声称为完整的 TVNEWS 流程替换。TVNEWS 旧脚本在完成兼容性迁移前必须保留。
+TVNEWS 的 GitHub Issue 专属父子关系适配、S1–S9 阶段推导、完整 Review Pack、质量记分和进度视图**尚未搬入此核心**。这些能力需要先剥离 TVNEWS 业务语义，再用 Node.js 实现。不要复制旧 Python 脚本，也不要将当前工程模块声称为完整的 TVNEWS 流程替换。TVNEWS 项目及其现有 Python 流程工具**长期保留**，不因 DeepStack 新增功能而要求删除或停用；未来若 TVNEWS 自愿接入，需要以独立授权和完整兼容性验证为前提。

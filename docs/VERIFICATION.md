@@ -76,3 +76,7 @@ node scripts/model-policy.mjs --independent-review absent "<L2 任务>"
 ## 暂存区 / 评审一致性反例
 
 `tests/staged-check.test.mjs` 检测 index 与工作区不一致、未跟踪文件、无暂存、测试运行中的源码修改，以及 index tree 在测试前后的变化。`tests/review-evidence.test.mjs` 将该 tree 与真实待审提交的 parent/tree 配对，并要求精确 SHA 的必需 CI 和项目明确声明的本地检查均满足，且永不把机器证据视为 owner 验收。实际复核入口见 [工程治理内核](./ENGINEERING-GOVERNANCE.md)。
+
+## Project doctor / Agent hook 测试（第四批）
+
+`node scripts/verify.mjs` 额外执行 `tests/project-doctor.test.mjs` 与 `tests/agent-preflight.test.mjs`，覆盖真实 Git bare origin、混合技术栈探测、CURRENT 多声明冲突、工作区差异、无配置行为、子目录定位、无 Git 仓库和畸形宿主输入。`project-doctor` 与 Hook 仅做只读事实扫描，单元测试通过不代表实际宿主已经自动注册 Hook；宿主验收仍按 `HOST-ACCEPTANCE.md` 单独执行。
