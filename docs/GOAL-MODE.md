@@ -14,7 +14,7 @@
 | Codex CLI | 持久线程和 `exec resume` | 已验证 |
 | Pi Agent | 会话文件、`--session` 和 `--resume` | 已验证 |
 
-这些入口的语义不同：MiniMax 和 ZCode 提供显式 Goal；其他三个已确认的是计划或可恢复会话。DeepStack 只负责选择适配面和报告证据，不把它们伪装成同一种 API。
+这些入口的语义不同：MiniMax 和 ZCode 提供显式 Goal；其他三个已确认的是计划或可恢复会话。`goal-adapters.json` 另外记录 `recovery`：原生 Goal 入口只能证明当前目标能力，不能自动证明跨会话恢复。DeepStack 只负责选择适配面和报告证据，不把它们伪装成同一种 API。
 
 机器可读的适配表见 [goal-adapters.json](../evals/goal-adapters.json)。宿主能力未确认时，适配器只能走 `pickup` 或回退检查点，不能假设原生 Goal 已可用。
 

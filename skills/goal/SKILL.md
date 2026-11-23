@@ -10,7 +10,7 @@ user-invocable: false
 
 ## 持久化优先级
 
-先读取 `../../docs/HOST-CAPABILITIES.md` 和 `../../evals/goal-adapters.json`，探测宿主是否提供 `native-goal` 并选择对应适配器。宿主提供且已确认时，优先使用原生 Goal、任务、计划或会话恢复机制，不再创建平行状态文件。当前已知适配包括 MiniMax Code 的 Goal 控件、ZCode 的 `/goal`、Claude Code 的 plan/resume、Codex 的持久线程/resume 和 Pi 的 session/resume。只有宿主没有可用的原生持久化能力、且用户明确要求跨会话恢复时，才使用 `.deepstack/goal.md` 作为最小回退。
+先读取 `../../docs/HOST-CAPABILITIES.md` 和 `../../evals/goal-adapters.json`，探测宿主是否提供 `native-goal` 并选择对应适配器。宿主提供且已确认时，优先使用原生 Goal、任务、计划或会话恢复机制，不再创建平行状态文件。当前已知适配包括 MiniMax Code 的 Goal 控件、ZCode 的 `/goal`、Claude Code 的 plan/resume、Codex 的持久线程/resume 和 Pi 的 session/resume。原生 Goal 入口不等于跨会话恢复；只有适配器 `recovery: verified` 或宿主 `session-recovery` 已确认时，才能报告跨会话恢复已验证。只有宿主没有可用的原生持久化能力、且用户明确要求跨会话恢复时，才使用 `.deepstack/goal.md` 作为最小回退。
 
 普通任务不要写入状态文件。回退状态只保留以下内容：
 
@@ -39,4 +39,4 @@ user-invocable: false
 5. 外部写入、提交、推送、合并、发布和部署仍然需要明确授权。
 6. 目标发生变化时先更新目标和验收标准，再继续执行，不能悄悄扩大范围。
 
-目标模式完成时输出：目标持久化（原生 / 回退文件 / 未确认）、跨会话恢复（已确认 / 未验证 / 不可用）、当前阶段、已完成证据、未完成阶段、阻塞项、下一步和是否需要授权。
+目标模式完成时输出：目标持久化（原生 / 回退文件 / 未确认）、跨会话恢复（已确认 / 未验证 / 不可用）、当前阶段、已完成证据、未完成阶段、阻塞项、下一步和是否需要授权。`native-goal + recovery: unverified` 必须明确写成“原生目标已使用，跨会话恢复未验证”。

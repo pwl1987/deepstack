@@ -226,15 +226,17 @@ if (!modelPolicy || modelPolicy.version !== 1 || !Array.isArray(modelPolicy.tier
 }
 
 const goalAdapters = readJsonFile("evals/goal-adapters.json");
-if (!goalAdapters || goalAdapters.version !== 1 || !Array.isArray(goalAdapters.adapters)) {
-  errors.push("evals/goal-adapters.json: expected version 1 and adapters");
+if (!goalAdapters || goalAdapters.version !== 2 || !Array.isArray(goalAdapters.adapters)) {
+  errors.push("evals/goal-adapters.json: expected version 2 and adapters");
 } else {
   const adapterHosts = new Set();
+  const recoveryStates = new Set(["verified", "unverified", "unavailable"]);
   for (const adapter of goalAdapters.adapters) {
     if (!adapter.host || adapterHosts.has(adapter.host)) errors.push("evals/goal-adapters.json: duplicate or missing host");
-    if (!adapter.mode || !adapter.entry || !adapter.persistence || !adapter.fallback) {
-      errors.push(`evals/goal-adapters.json: ${adapter.host || "<unknown>"} needs mode, entry, persistence, and fallback`);
+    if (!adapter.mode || !adapter.entry || !adapter.persistence || !adapter.recovery || !adapter.fallback) {
+      errors.push(`evals/goal-adapters.json: ${adapter.host || "<unknown>"} needs mode, entry, persistence, recovery, and fallback`);
     }
+    if (adapter.recovery && !recoveryStates.has(adapter.recovery)) errors.push(`evals/goal-adapters.json: ${adapter.host || "<unknown>"} has invalid recovery state`);
     adapterHosts.add(adapter.host);
   }
   for (const host of ["claude-code", "codex-cli", "pi-agent", "zcode", "minimax-code"]) {
