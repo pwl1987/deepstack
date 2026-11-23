@@ -60,6 +60,16 @@ Mac 宿主的实际验证范围、版本和未验证项见 [宿主验证记录](
 
 质量门优先读取项目已有的 scripts、Makefile、CI 和贡献文档，不自动安装工具。只读任务不会写工作区或外部系统。提交、推送、PR、合并、发布和持久记忆修改只在用户明确授权范围内执行。
 
+只读探针可以在仓库外保存基线并在结束后复核：
+
+```sh
+node scripts/readonly-guard.mjs snapshot "$(git rev-parse --show-toplevel)" /tmp/deepstack-readonly-baseline.json
+# 执行只读探针
+node scripts/readonly-guard.mjs verify "$(git rev-parse --show-toplevel)" /tmp/deepstack-readonly-baseline.json
+```
+
+复核发现文件、Git 状态或提交发生变化时返回非零；它是发现门禁，不是宿主沙箱，也不能覆盖探针启动前的宿主钩子写入。
+
 没有运行证据的结果会标为 `NOT_CONFIGURED`、`SKIPPED` 或 `UNVERIFIED`，不会写成通过。
 
 ## 安装

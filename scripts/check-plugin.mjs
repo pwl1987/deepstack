@@ -117,6 +117,9 @@ if (!fs.existsSync(skillsRoot)) errors.push("skills/: missing directory");
 if (!fs.existsSync(path.join(root, "scripts", "model-policy.mjs"))) {
   errors.push("scripts/model-policy.mjs: missing deterministic model policy preflight");
 }
+if (!fs.existsSync(path.join(root, "scripts", "readonly-guard.mjs"))) {
+  errors.push("scripts/readonly-guard.mjs: missing readonly baseline guard");
+}
 
 const routeCases = readJsonFile("evals/router-cases.json");
 const allowedRoutes = new Set(["investigation", "pickup", "delivery", "goal", "bug-fix", "refactor", "feature"]);
