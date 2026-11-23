@@ -1,0 +1,122 @@
+{
+  "version": 2,
+  "policy": "Single source for host capability truth in offline CI. Manual observations are not CI guarantees.",
+  "capabilities": [
+    "single-entry",
+    "skill-loading",
+    "readonly-execution",
+    "parallel-agents",
+    "isolated-workspace",
+    "external-cli",
+    "quality-gate",
+    "native-goal",
+    "session-recovery",
+    "model-policy"
+  ],
+  "skillGates": [
+    {
+      "skill": "arena",
+      "requiresAllConfirmed": ["parallel-agents", "isolated-workspace"],
+      "message": "arena needs confirmed parallel agents and isolated workspaces"
+    },
+    {
+      "skill": "swarm",
+      "requiresAllConfirmed": ["parallel-agents"],
+      "message": "swarm needs confirmed parallel agents"
+    },
+    {
+      "skill": "interrogate",
+      "requiresAnyConfirmed": ["parallel-agents"],
+      "fallbackNote": "Without parallel-agents, interrogate must run sequential multi-persona and disclose downgrade"
+    }
+  ],
+  "hosts": [
+    {
+      "id": "claude-code",
+      "confirmed": ["single-entry", "skill-loading", "readonly-execution", "quality-gate", "native-goal", "session-recovery", "model-policy"],
+      "unknown": ["parallel-agents", "isolated-workspace", "external-cli"],
+      "manualObservations": [
+        {
+          "id": "readonly-routing-20261122",
+          "recordedAt": "2026-11-22",
+          "pluginVersion": "0.2.2",
+          "hostVersion": "2.1.330",
+          "kind": "host-manual",
+          "ciAsserts": false,
+          "summary": "Disposable read-only smoke returned investigation routing and evidence contract in a real plugin directory."
+        }
+      ]
+    },
+    {
+      "id": "codex-cli",
+      "confirmed": ["single-entry", "skill-loading", "readonly-execution", "native-goal", "session-recovery", "model-policy"],
+      "unknown": ["parallel-agents", "isolated-workspace", "external-cli", "quality-gate"],
+      "manualObservations": [
+        {
+          "id": "readonly-routing-20261122",
+          "recordedAt": "2026-11-22",
+          "pluginVersion": "0.2.2",
+          "hostVersion": "0.171.0",
+          "kind": "host-manual",
+          "ciAsserts": false,
+          "summary": "Temporary project loaded skills; read-only investigation returned line evidence. Version 0.166.0 notes superseded by 0.171.0 observation."
+        }
+      ]
+    },
+    {
+      "id": "pi-agent",
+      "confirmed": ["single-entry", "skill-loading", "readonly-execution", "native-goal", "session-recovery", "model-policy"],
+      "unknown": ["parallel-agents", "isolated-workspace", "external-cli", "quality-gate"],
+      "manualObservations": [
+        {
+          "id": "readonly-routing-20261122",
+          "recordedAt": "2026-11-22",
+          "pluginVersion": "0.2.2",
+          "hostVersion": "1.6.0",
+          "kind": "host-manual",
+          "ciAsserts": false,
+          "summary": "Loaded DeepStack via --skill; investigation routing and boundaries reported."
+        }
+      ]
+    },
+    {
+      "id": "zcode",
+      "confirmed": ["single-entry", "skill-loading", "native-goal"],
+      "unknown": ["readonly-execution", "parallel-agents", "isolated-workspace", "external-cli", "quality-gate", "session-recovery", "model-policy"],
+      "manualObservations": [
+        {
+          "id": "readonly-routing-20261123",
+          "recordedAt": "2026-11-23",
+          "pluginVersion": "0.2.2",
+          "hostVersion": "3.19.1",
+          "kind": "host-manual",
+          "ciAsserts": false,
+          "summary": "After cache refresh, disposable local Git repo stayed clean; router reported UNVERIFIED + investigation + L2 + 未确认. Comet history is out of supported surface."
+        }
+      ]
+    },
+    {
+      "id": "minimax-code",
+      "confirmed": ["single-entry", "skill-loading", "readonly-execution", "native-goal", "model-policy"],
+      "unknown": ["parallel-agents", "isolated-workspace", "external-cli", "quality-gate", "session-recovery"],
+      "manualObservations": [
+        {
+          "id": "readonly-routing-20261123",
+          "recordedAt": "2026-11-23",
+          "pluginVersion": "0.2.2",
+          "hostVersion": "3.1.17",
+          "kind": "host-manual",
+          "ciAsserts": false,
+          "summary": "0.2.2 package in disposable project; routing probe passed locally. Earlier 0.2.0 multi-root PARTIAL notes are historical only."
+        }
+      ]
+    }
+  ],
+  "routingBenchmark": {
+    "id": "readonly-cache-explanation",
+    "prompt": "解释缓存为什么在退出登录后仍然保留。只读检查，不要修改任何文件；先输出路由、理由、范围和关键证据。",
+    "expectedRoute": "investigation",
+    "offlineOnly": true,
+    "note": "Router output on real hosts is manual observation only; offline CI does not execute LLM routing."
+  }
+}

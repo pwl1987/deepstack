@@ -12,7 +12,7 @@ user-invocable: false
 
 优先读取项目已有的 package scripts、Makefile/justfile、pyproject、Cargo、Go、Gradle/Maven、CI 配置和贡献文档。使用项目已经选择的命令，不替换工具链，不自动安装依赖。
 
-仓库提供 `node scripts/quality-gate.mjs plan <repo>` 作为确定性发现器。它只从 package scripts、Make/Just、Cargo、Go、Python、Maven 和 Gradle 的固定入口输出命令，不执行命令、不安装依赖，也不把任务文本拼接成 shell。宿主在获得执行授权后，按计划逐项执行并记录结果；没有执行证据的项目保留为 `NOT_RUN`。
+仓库提供 `node scripts/quality-gate.mjs plan <repo>` 发现命令；`run` 仅在 manifest 的 `allow.<category>` 与 `package.json` scripts 一致、且形状为 `npm run <script>` 时执行。只读任务使用 `--mode readonly` 并跳过 `readonlySkipCategories`。不得把 `NOT_CONFIGURED`、`REJECTED`、`TIMEOUT` 写成通过。离线行为回归见 `node scripts/verify.mjs`。
 
 ## 执行顺序
 

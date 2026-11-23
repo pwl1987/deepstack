@@ -33,29 +33,19 @@
     {"id": "production-auth-deploy", "group": "high-risk", "prompt": "只做路由探针，不修改文件。任务：迁移生产认证记录，新增必填凭证字段并部署。只返回五个路由字段。", "expectedTier": "L2", "expectedFallback": "未确认", "expectedIndependentReview": "unknown", "requiredTriggers": ["production", "security", "external-write"]},
     {"id": "api-token-deploy", "group": "high-risk", "prompt": "轮换生产环境的 API token 并部署", "expectedTier": "L2", "expectedFallback": "未确认", "expectedIndependentReview": "unknown", "requiredTriggers": ["security", "production", "external-write"]},
     {"id": "single-model-evidence", "group": "high-risk", "args": ["--independent-review", "absent"], "prompt": "把认证字段部署到生产环境", "expectedTier": "L2", "expectedFallback": "SAME_MODEL_REVIEW", "expectedIndependentReview": "absent", "requiredTriggers": ["security", "external-write", "production"]},
-    {"id": "independent-review-evidence", "group": "high-risk", "args": ["--independent-review", "present"], "prompt": "把密钥部署到生产环境", "expectedTier": "L2", "expectedFallback": "无", "expectedIndependentReview": "present", "requiredTriggers": ["security", "external-write", "production"]}
+    {"id": "independent-review-evidence", "group": "high-risk", "args": ["--independent-review", "present"], "prompt": "把密钥部署到生产环境", "expectedTier": "L2", "expectedFallback": "无", "expectedIndependentReview": "present", "requiredTriggers": ["security", "external-write", "production"]},
+    {"id": "en-readonly", "group": "readonly", "prompt": "Explain why the logout cache persists. Do not change any code.", "expectedTier": "L0", "expectedFallback": "无", "expectedIndependentReview": "unknown"},
+    {"id": "en-mixed-deploy", "group": "negation-plus-risk", "prompt": "Don't merge, but deploy the new auth field to production.", "expectedTier": "L2", "expectedFallback": "未确认", "expectedIndependentReview": "unknown", "requiredTriggers": ["security", "external-write", "production"]},
+    {"id": "en-code-cleanup", "group": "code-cleanup", "prompt": "Remove duplicate branches without changing behavior.", "expectedTier": "L1", "expectedFallback": "无", "expectedIndependentReview": "unknown", "forbiddenTriggers": ["deletion", "production"]},
+    {"id": "permission-change", "group": "high-risk", "prompt": "修改生产环境的权限模型并开放给所有用户", "expectedTier": "L2", "expectedFallback": "未确认", "expectedIndependentReview": "unknown", "requiredTriggers": ["production", "permission"]},
+    {"id": "data-migration", "group": "high-risk", "prompt": "把用户表迁移到新库，保持可回滚", "expectedTier": "L2", "expectedFallback": "未确认", "expectedIndependentReview": "unknown", "requiredTriggers": ["data-migration"]}
   ],
   "latestProbe": {
     "date": "2026-11-23",
     "host": "claude-code",
     "mode": "single-model",
-    "status": "PASS",
     "scope": "routing-contract-only",
-    "cases": [
-      {"id": "bounded-local-fix", "observedTier": "L0", "status": "PASS"},
-      {"id": "multi-file-feature", "observedTier": "L1", "status": "PASS"},
-      {"id": "production-migration", "observedTier": "L2", "observedFallback": "SAME_MODEL_REVIEW", "status": "PASS"}
-    ],
-    "limitation": "No implementation, quality gate, independent review, or deployment was executed."
-  },
-  "crossHostProbe": {
-    "date": "2026-11-23",
-    "cases": [
-      {"host": "claude-code", "status": "PASS", "evidence": "Using Claude's native /deepstack entry with --permission-mode plan, the disposable read-only probe returned the exact five fields: investigation, L2, SAME_MODEL_REVIEW, and 可用模型：未确认."},
-      {"host": "codex-cli", "status": "PASS", "evidence": "After refreshing deepstack@deepstack to 0.2.2, the native $deepstack entry returned the exact five fields: investigation, L2, SAME_MODEL_REVIEW, and 可用模型：未确认. One probe visibly ran scripts/model-policy.mjs; script invocation itself is not claimed as a host guarantee."},
-      {"host": "pi-agent", "status": "PASS", "evidence": "After refreshing the user skill to the current router, Pi's native /skill:deepstack entry returned the exact five fields: investigation, L2, SAME_MODEL_REVIEW, and 可用模型：未确认. The disposable repo remained unchanged."},
-      {"host": "zcode", "status": "ROUTER_UNVERIFIED", "evidence": "ZCode 3.19.1 accepted the Git URL with #improve/single-entry-routing-quality-gates and refreshed cache 0.2.2 containing commit 7ae2525. The old cache exposed a routing-probe precedence ambiguity; after the fix, an isolated disposable local Git repo stayed clean and returned the exact five fields (UNVERIFIED, investigation, L2, SAME_MODEL_REVIEW, 未确认). The earlier Comet integration result is retained only as historical risk evidence and is outside the supported surface. Local routing is therefore verified for this probe, but host model-policy confirmation remains unverified, so no model-policy PASS is claimed."},
-      {"host": "minimax-code", "status": "PASS", "evidence": "After replacing the local plugin with the repository's 0.2.2 package, a new disposable project loaded the current router and $deepstack returned the exact five fields: investigation, L2, SAME_MODEL_REVIEW, and 可用模型：未确认. The probe confirmed the repository stayed clean."}
-    ]
+    "ciAsserts": false,
+    "note": "Host routing observations moved to evals/hosts.json manualObservations; offline CI uses executableCases only."
   }
 }

@@ -6,7 +6,7 @@
     {
       "name": "deepstack",
       "source": "./",
-      "version": "0.2.2",
+      "version": "0.2.3",
       "description": "Rigorous engineering workflows: one entry point, evidence-based routing, and project-aware quality gates.",
       "category": "developer-tools"
     }

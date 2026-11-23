@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "suites": {
+    "qualityGate": [
+      {
+        "id": "qg-pass",
+        "fixture": "fixtures/quality-gate/basic",
+        "manifest": "fixtures/quality-gate/basic/deepstack-quality-gate.json",
+        "mode": "write-authorized",
+        "category": "test",
+        "expectStatus": "PASS"
+      },
+      {
+        "id": "qg-fail",
+        "fixture": "fixtures/quality-gate/basic",
+        "manifest": "fixtures/quality-gate/basic/deepstack-quality-gate.fail.json",
+        "mode": "write-authorized",
+        "category": "test",
+        "expectStatus": "FAIL"
+      },
+      {
+        "id": "qg-not-configured",
+        "fixture": "fixtures/quality-gate/empty",
+        "manifest": "fixtures/quality-gate/empty/deepstack-quality-gate.json",
+        "mode": "write-authorized",
+        "category": "lint",
+        "expectStatus": "NOT_CONFIGURED"
+      },
+      {
+        "id": "qg-reject-unlisted",
+        "fixture": "fixtures/quality-gate/basic",
+        "manifest": "fixtures/quality-gate/basic/deepstack-quality-gate.reject.json",
+        "mode": "write-authorized",
+        "category": "test",
+        "allowCommand": "npm run danger:write",
+        "expectStatus": "REJECTED"
+      },
+      {
+        "id": "qg-readonly-skip-format",
+        "fixture": "fixtures/quality-gate/basic",
+        "manifest": "fixtures/quality-gate/basic/deepstack-quality-gate.json",
+        "mode": "readonly",
+        "category": "format",
+        "expectStatus": "SKIPPED"
+      },
+      {
+        "id": "qg-timeout",
+        "fixture": "fixtures/quality-gate/basic",
+        "manifest": "fixtures/quality-gate/basic/deepstack-quality-gate.slow.json",
+        "mode": "write-authorized",
+        "category": "test",
+        "timeoutMs": 200,
+        "expectStatus": "TIMEOUT"
+      }
+    ],
+    "goalState": [
+      {
+        "id": "goal-init-validate",
+        "commands": [
+          ["init", "--goal", "milestone", "--acceptance", "offline verify green", "--force"],
+          ["validate"]
+        ]
+      }
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "categories": ["format", "lint", "type", "test", "security"],
-  "statuses": ["PASS", "FAIL", "NOT_CONFIGURED", "SKIPPED", "NOT_RUN"],
-  "execution": "plan-only-until-authorized",
+  "statuses": ["PASS", "FAIL", "NOT_CONFIGURED", "SKIPPED", "NOT_RUN", "TIMEOUT", "REJECTED"],
+  "execution": "manifest-authorized-run",
   "policy": "fixed-discovery-no-install-no-arbitrary-command"
 }

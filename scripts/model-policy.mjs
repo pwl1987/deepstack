@@ -32,8 +32,8 @@ const text = input.toLocaleLowerCase("zh-CN");
 // ponytail: 只按标点和近距否定看动作对象，不做句法分析。
 const criticalRules = [
   ["production", /生产|线上环境|线上|production|\bprod\b/],
-  ["data-migration", /数据迁移|数据库迁移|迁移数据|data[ -]?migration|database[ -]?migration|backfill/],
-  ["security", /认证|鉴权|密码|密钥|凭证|令牌|(?:api|access|auth|bearer|refresh|session)\s+tokens?|\bcredentials?\b|\bsecurity\b/],
+  ["data-migration", /数据迁移|数据库迁移|迁移数据|迁移到[^，。；]{0,12}(?:新库|新表|库)|data[ -]?migration|database[ -]?migration|backfill|migrate\b/i],
+  ["security", /认证|鉴权|密码|密钥|凭证|令牌|auth field|\bauth\b|(?:api|access|auth|bearer|refresh|session)\s+tokens?|\bcredentials?\b|\bsecurity\b/],
   ["permission", /权限|授予权限|\bpermission\b|\bprivilege\b|access control/],
   ["external-write", /提交|推送|合并|发布|部署|上线|外部写入|\bcommit\b|\bpush\b|\bmerge\b|\brelease\b|\bdeploy\b/],
   ["rollback", /回滚|不可逆|高代价|\brollback\b|\birreversible\b|恢复(?:生产|线上|数据库|数据|备份)/],
@@ -44,7 +44,7 @@ const engineeringRules = [
   ["ambiguity", /需求歧义|多个方案|不确定|ambiguous|multiple options?/],
   ["regression", /回归|兼容性|缺少测试|regression|compatibility|without tests?/],
   ["architecture", /架构|设计方案|重构|行为不变|architecture|refactor|\bdesign\b(?!\s+tokens?\b)/],
-  ["code-cleanup", /删除[^，。；]{0,16}(?:重复(?:代码|分支|实现)?|旧接口|死代码|无用代码)|去掉[^，。；]{0,12}重复/],
+  ["code-cleanup", /删除[^，。；]{0,16}(?:重复(?:代码|分支|实现)?|旧接口|死代码|无用代码)|去掉[^，。；]{0,12}重复|remove duplicate|duplicate branches|dead code/i],
 ];
 
 function clausesOf(value) {

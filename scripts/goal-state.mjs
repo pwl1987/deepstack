@@ -95,7 +95,7 @@ function now() {
 }
 
 function adapter(host) {
-  const capabilities = readJson("evals/host-capabilities.json");
+  const capabilities = readJson("evals/hosts.json");
   const adapters = readJson("evals/goal-adapters.json");
   const capability = capabilities.hosts.find((item) => item.id === host);
   const goalAdapter = adapters.adapters.find((item) => item.host === host);

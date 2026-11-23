@@ -35,4 +35,4 @@ DeepStack 的内部步骤不能凭宿主名称或配置文件猜测能力。每�
 本轮降级：<没有 / 具体降级>
 ```
 
-五个宿主的当前点时记录见 [宿主路由基准](../evals/host-routing-benchmark.json) 和 [宿主验证记录](HOST-VALIDATION.md)。
+能力矩阵与手工观察见 [evals/hosts.json](../evals/hosts.json)（离线 CI 唯一来源）。人类摘要见 [宿主验证记录](HOST-VALIDATION.md)。`unknown` 不得当作支持；`manualObservations` 不得写入 CI 通过断言。

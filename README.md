@@ -10,7 +10,7 @@ DeepStack 不把“更多模型、更多代理、更多命令”当作质量。�
 
 Mac 宿主的实际验证范围、版本和未验证项见 [宿主验证记录](docs/HOST-VALIDATION.md)。
 
-路由基准和内部步骤的宿主能力探测规则见 [宿主路由基准](evals/host-routing-benchmark.json)、[能力矩阵](evals/host-capabilities.json) 和 [宿主能力探测协议](docs/HOST-CAPABILITIES.md)。
+宿主能力与手工观察的单一机器来源是 [evals/hosts.json](evals/hosts.json)；协议见 [宿主能力探测](docs/HOST-CAPABILITIES.md)，离线验收入口见 [验证契约](docs/VERIFICATION.md)。
 
 ## 唯一入口
 
@@ -56,7 +56,7 @@ Mac 宿主的实际验证范围、版本和未验证项见 [宿主验证记录](
 - `quality-gate`：项目感知的格式、静态检查、类型检查、测试和安全检查
 - `ship` / `reflect` / `pickup`：交付、复盘和续接
 
-目标模式的回退状态只在用户明确要求跨会话恢复、且宿主没有原生持久化时创建。使用 `scripts/goal-state.mjs` 维护 `.deepstack/goal.md`，使用 `scripts/quality-gate.mjs plan <repo>` 发现项目已有质量门入口；两者都不安装依赖、不运行后台进程、不执行任务文本中的任意命令。
+目标模式的回退状态只在用户明确要求跨会话恢复、且宿主没有原生持久化时创建。使用 `scripts/goal-state.mjs` 维护 `.deepstack/goal.md`，使用 `scripts/quality-gate.mjs plan|run`（manifest 授权）执行质量门；两者都不安装依赖、不运行后台进程、不执行任务文本中的任意命令。
 
 ## 质量和授权边界
 
@@ -118,11 +118,10 @@ https://github.com/pwl1987/deepstack.git#improve/single-entry-routing-quality-ga
 ## 验证插件自身
 
 ```bash
-node scripts/check-plugin.mjs
-claude plugin validate .claude-plugin/plugin.json --strict
+node scripts/verify.mjs
 ```
 
-`evals/router-cases.json` 是路由契约样例。它检查案例覆盖和文件结构，不等同于真实模型行为评估；真实路由效果仍需在目标宿主和模型上运行盲测。
+`verify` 串联结构检查、风险预检可执行回归、宿主注册表约束、质量门 fixture、只读守卫与 Goal 检查点。`evals/router-cases.json` 仅是离线路由样例字段，不等同于真实模型遵守技能；真实路由仍需在目标宿主上实测。
 
 ## License
 

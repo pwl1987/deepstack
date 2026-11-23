@@ -147,46 +147,44 @@ if (!routeCases || routeCases.version !== 1 || !Array.isArray(routeCases.cases))
   }
 }
 
-const hostBenchmark = readJsonFile("evals/host-routing-benchmark.json");
-const allowedStatuses = new Set(["PASS", "PARTIAL", "NOT_RUN"]);
-if (!hostBenchmark || hostBenchmark.version !== 1 || !hostBenchmark.case || !Array.isArray(hostBenchmark.hosts)) {
-  errors.push("evals/host-routing-benchmark.json: expected version 1, case, and hosts array");
-} else {
-  if (!hostBenchmark.case.id || !hostBenchmark.case.prompt || !hostBenchmark.case.expectedRoute) {
-    errors.push("evals/host-routing-benchmark.json: case needs id, prompt, and expectedRoute");
-  }
-  const hostIds = new Set();
-  for (const host of hostBenchmark.hosts) {
-    if (!host.id || hostIds.has(host.id)) errors.push("evals/host-routing-benchmark.json: duplicate or missing host id");
-    if (!allowedStatuses.has(host.status)) errors.push(`evals/host-routing-benchmark.json: ${host.id || "<unknown>"} has invalid status`);
-    if (!host.version || !host.evidence) errors.push(`evals/host-routing-benchmark.json: ${host.id || "<unknown>"} needs version and evidence`);
-    hostIds.add(host.id);
-  }
-  if (hostBenchmark.hosts.length < 5) errors.push("evals/host-routing-benchmark.json: need at least five host records");
+if (fs.existsSync(path.join(root, "evals/host-capabilities.json")) || fs.existsSync(path.join(root, "evals/host-routing-benchmark.json"))) {
+  errors.push("deprecated host evidence files present; use evals/hosts.json as the single source");
 }
 
-const hostCapabilities = readJsonFile("evals/host-capabilities.json");
-if (!hostCapabilities || hostCapabilities.version !== 1 || !Array.isArray(hostCapabilities.capabilities) || !Array.isArray(hostCapabilities.hosts)) {
-  errors.push("evals/host-capabilities.json: expected version 1, capabilities, and hosts arrays");
+const hostRegistry = readJsonFile("evals/hosts.json");
+if (!hostRegistry || hostRegistry.version !== 2 || !Array.isArray(hostRegistry.capabilities) || !Array.isArray(hostRegistry.hosts)) {
+  errors.push("evals/hosts.json: expected version 2, capabilities, and hosts");
 } else {
-  const capabilitySet = new Set(hostCapabilities.capabilities);
-  const capabilityHosts = new Set();
-  for (const host of hostCapabilities.hosts) {
-    if (!host.id || capabilityHosts.has(host.id)) errors.push("evals/host-capabilities.json: duplicate or missing host id");
+  const capabilitySet = new Set(hostRegistry.capabilities);
+  const hostIds = new Set();
+  for (const host of hostRegistry.hosts) {
+    if (!host.id || hostIds.has(host.id)) errors.push("evals/hosts.json: duplicate or missing host id");
     const confirmed = new Set(host.confirmed || []);
     const unknown = new Set(host.unknown || []);
     for (const capability of [...confirmed, ...unknown]) {
-      if (!capabilitySet.has(capability)) errors.push(`evals/host-capabilities.json: unknown capability ${capability}`);
+      if (!capabilitySet.has(capability)) errors.push(`evals/hosts.json: unknown capability ${capability}`);
     }
     for (const capability of confirmed) {
-      if (unknown.has(capability)) errors.push(`evals/host-capabilities.json: ${host.id} marks ${capability} confirmed and unknown`);
+      if (unknown.has(capability)) errors.push(`evals/hosts.json: ${host.id} marks ${capability} confirmed and unknown`);
     }
     if (confirmed.size + unknown.size !== capabilitySet.size) {
-      errors.push(`evals/host-capabilities.json: ${host.id} does not account for every capability`);
+      errors.push(`evals/hosts.json: ${host.id} does not account for every capability`);
     }
-    capabilityHosts.add(host.id);
+    if (confirmed.has("parallel-agents") && !confirmed.has("isolated-workspace")) {
+      errors.push(`evals/hosts.json: ${host.id} cannot confirm parallel-agents without isolated-workspace`);
+    }
+    for (const observation of host.manualObservations || []) {
+      if (!observation.id || !observation.recordedAt || !observation.summary) {
+        errors.push(`evals/hosts.json: ${host.id} manual observation needs id, recordedAt, summary`);
+      }
+      if (observation.ciAsserts) errors.push(`evals/hosts.json: ${host.id}/${observation.id} manual observation must not set ciAsserts`);
+    }
+    hostIds.add(host.id);
   }
-  if (hostCapabilities.hosts.length < 5) errors.push("evals/host-capabilities.json: need at least five host records");
+  if (hostRegistry.hosts.length < 5) errors.push("evals/hosts.json: need at least five host records");
+  if (hostRegistry.routingBenchmark?.offlineOnly !== true) {
+    errors.push("evals/hosts.json: routingBenchmark must be offlineOnly");
+  }
 }
 
 const modelPolicy = readJsonFile("evals/model-policy.json");
@@ -206,27 +204,8 @@ if (!modelPolicy || modelPolicy.version !== 1 || !Array.isArray(modelPolicy.tier
     if (item.expectedTier && !modelPolicy.tiers.includes(item.expectedTier)) errors.push(`evals/model-policy.json: ${item.id} has invalid tier`);
     modelCaseIds.add(item.id);
   }
-  if (modelPolicy.latestProbe) {
-    const probe = modelPolicy.latestProbe;
-    if (!probe.date || !probe.host || probe.mode !== "single-model" || probe.status !== "PASS" || probe.scope !== "routing-contract-only") {
-      errors.push("evals/model-policy.json: latestProbe must record a passing single-model routing-contract probe");
-    }
-    if (!Array.isArray(probe.cases) || probe.cases.length < 3) {
-      errors.push("evals/model-policy.json: latestProbe needs at least three cases");
-    }
-  }
-  if (modelPolicy.crossHostProbe) {
-    const allowedProbeStatuses = new Set(["PASS", "ROUTER_UNVERIFIED", "NOT_RUN"]);
-    if (!modelPolicy.crossHostProbe.date || !Array.isArray(modelPolicy.crossHostProbe.cases)) {
-      errors.push("evals/model-policy.json: crossHostProbe needs date and cases");
-    } else {
-      for (const item of modelPolicy.crossHostProbe.cases) {
-        if (!item.host || !item.evidence || !allowedProbeStatuses.has(item.status)) {
-          errors.push(`evals/model-policy.json: invalid crossHostProbe record for ${item.host || "<unknown>"}`);
-        }
-      }
-    }
-  }
+  if (modelPolicy.latestProbe?.ciAsserts) errors.push("evals/model-policy.json: latestProbe cannot claim ciAsserts");
+  if (modelPolicy.crossHostProbe?.ciAsserts) errors.push("evals/model-policy.json: crossHostProbe cannot claim ciAsserts");
   const executableCases = modelPolicy.executableCases;
   const requiredGroups = ["negated-write", "readonly", "design-token", "code-cleanup", "data-destruction", "session-resume", "production-restore", "negation-plus-risk", "high-risk", "engineering"];
   if (!Array.isArray(executableCases) || !executableCases.length) {
@@ -299,15 +278,33 @@ if (!goalState || goalState.version !== 1 || goalState.file !== ".deepstack/goal
   }
 }
 
+if (!fs.existsSync(path.join(root, "scripts", "verify.mjs"))) errors.push("scripts/verify.mjs: missing unified offline verify entry");
+if (!fs.existsSync(path.join(root, "evals", "verification-suite.json"))) errors.push("evals/verification-suite.json: missing behavioral verification suite");
+
 const qualityGate = readJsonFile("evals/quality-gate.json");
-if (!qualityGate || qualityGate.version !== 1 || !Array.isArray(qualityGate.categories) || !Array.isArray(qualityGate.statuses) || qualityGate.execution !== "plan-only-until-authorized" || qualityGate.policy !== "fixed-discovery-no-install-no-arbitrary-command") {
-  errors.push("evals/quality-gate.json: expected deterministic plan-only quality gate contract");
+if (!qualityGate || qualityGate.version !== 1 || !Array.isArray(qualityGate.categories) || !Array.isArray(qualityGate.statuses) || qualityGate.execution !== "manifest-authorized-run" || qualityGate.policy !== "fixed-discovery-no-install-no-arbitrary-command") {
+  errors.push("evals/quality-gate.json: expected manifest-authorized-run quality gate contract");
 } else {
   for (const category of ["format", "lint", "type", "test", "security"]) {
     if (!qualityGate.categories.includes(category)) errors.push(`evals/quality-gate.json: missing category ${category}`);
   }
-  for (const status of ["PASS", "FAIL", "NOT_CONFIGURED", "SKIPPED", "NOT_RUN"]) {
+  for (const status of ["PASS", "FAIL", "NOT_CONFIGURED", "SKIPPED", "NOT_RUN", "TIMEOUT", "REJECTED"]) {
     if (!qualityGate.statuses.includes(status)) errors.push(`evals/quality-gate.json: missing status ${status}`);
+  }
+}
+
+const goalAdaptersForHosts = readJsonFile("evals/goal-adapters.json");
+if (hostRegistry?.hosts && goalAdaptersForHosts?.adapters) {
+  const registryIds = new Set(hostRegistry.hosts.map((host) => host.id));
+  for (const adapter of goalAdaptersForHosts.adapters) {
+    if (!registryIds.has(adapter.host)) errors.push(`evals/goal-adapters.json: ${adapter.host} missing from evals/hosts.json`);
+    if (adapter.recovery === "verified") {
+      const host = hostRegistry.hosts.find((item) => item.id === adapter.host);
+      const confirmed = new Set(host?.confirmed || []);
+      if (!confirmed.has("session-recovery")) {
+        errors.push(`evals/goal-adapters.json: ${adapter.host} recovery verified without session-recovery confirmed in hosts.json`);
+      }
+    }
   }
 }
 

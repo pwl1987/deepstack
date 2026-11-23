@@ -2,7 +2,7 @@
 
 这是一份 2026-11-22 在 macOS Apple Silicon 上进行的点时验证记录。它描述实际运行过的表面和限制，不替代持续集成，也不代表所有模型、账号或宿主版本都通过。
 
-统一测试输入和能力状态见 [宿主路由基准](../evals/host-routing-benchmark.json) 与 [能力矩阵](../evals/host-capabilities.json)。
+机器可读能力状态见 [evals/hosts.json](../evals/hosts.json)。下表为 2026-11-22 至 2026-11-23 的**手工观察摘要**；与 `hosts.json` 冲突时以 `hosts.json` 为准。GitHub Actions **不**把这些观察当作通过。
 
 | 宿主 | 版本 | 验证内容 | 结果 | 边界 |
 |---|---|---|---|---|
@@ -32,6 +32,7 @@
 - 会话恢复探针使用临时目录和只读工具，没有修改 DeepStack 仓库；Claude/Codex/Pi 的标记往返证明的是会话恢复，不证明宿主有独立 Goal 调度器。
 - MiniMax Code 的 Goal 控件来自当前已有任务；没有暂停、删除或重启该用户任务，因此跨重启恢复仍保持未验证。MiniMax 重新加载本仓库 `0.2.2` 后，临时项目路由探针通过；旧 `0.2.1` 结果保留为缓存失效的历史证据。ZCode 的新探针只证明任务记录可再次打开，不足以把 `recovery` 升级为 `verified`。
 
-## 模型策略跨宿主探针
+## 离线与实机边界
 
-2026-11-23 使用同一条生产认证字段迁移输入做单模型路由检查：Claude Code 用原生 `/deepstack`，Codex CLI 刷新 `deepstack@deepstack` 到 `0.2.2` 后用 `$deepstack`，Pi 刷新用户技能后用 `/skill:deepstack`，MiniMax Code 重新加载本仓库 `0.2.2` 后用 `$deepstack`，四者都返回完整五字段并命中 `investigation + L2 + SAME_MODEL_REVIEW + 未确认`。ZCode 刷新包含 `7ae2525` 的 `0.2.2` 后，临时本地 Git 仓库保持 clean，并返回 `UNVERIFIED + investigation + L2 + SAME_MODEL_REVIEW + 未确认`。Comet 结果仅为历史集成风险记录，不再纳入支持判断。机器可读记录见 [model-policy.json](../evals/model-policy.json)。
+- 风险预检脚本回归见 `node scripts/verify.mjs` 与 [VERIFICATION.md](VERIFICATION.md)；那是**启发式契约**，不是模型路由盲测。
+- 2026-11-23 各宿主上的五字段路由探针为手工记录，已迁入 `evals/hosts.json` 的 `manualObservations`；不再在 `model-policy.json` 中宣称 CI 通过。
