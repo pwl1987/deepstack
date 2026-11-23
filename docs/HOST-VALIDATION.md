@@ -34,4 +34,4 @@
 
 ## 模型策略跨宿主探针
 
-2026-11-23 使用同一条生产认证字段迁移输入做单模型路由检查：Claude Code 已加载 DeepStack，输出 `L2 + SAME_MODEL_REVIEW`；Codex CLI 刷新 `deepstack@deepstack` 后使用 `$deepstack`，在没有额外提示脚本名称的情况下自动运行确定性预检，并输出 `L2 + SAME_MODEL_REVIEW` 与 `可用模型：未确认`；Pi Agent 即使通过 `$deepstack` 加载技能，也未输出该契约。Codex 的首次引导探针仍显示 `UNVERIFIED`，因为当时能力矩阵尚未记录 `model-policy`；完成记录后，Codex 的风险分级和降级契约已确认。Pi 继续标为 `ROUTER_UNVERIFIED`。机器可读记录见 [model-policy.json](../evals/model-policy.json)。
+2026-11-23 使用同一条生产认证字段迁移输入做单模型路由检查：Claude Code 已加载 DeepStack，输出 `L2 + SAME_MODEL_REVIEW`；Codex CLI 刷新 `deepstack@deepstack` 后使用 `$deepstack`，重复探针均输出 `L2 + SAME_MODEL_REVIEW` 与 `可用模型：未确认`，其中一次明确运行了确定性预检脚本，另一次没有暴露该工具调用，因此只确认路由契约，不把脚本调用本身写成宿主保证；Pi Agent 即使通过 `$deepstack` 加载技能，也未输出该契约。Codex 的首次引导探针仍显示 `UNVERIFIED`，因为当时能力矩阵尚未记录 `model-policy`；完成记录后，Codex 的风险分级和降级契约已确认。Pi 继续标为 `ROUTER_UNVERIFIED`。机器可读记录见 [model-policy.json](../evals/model-policy.json)。

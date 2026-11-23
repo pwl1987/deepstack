@@ -81,7 +81,7 @@ codex plugin add deepstack@deepstack
 $deepstack 修复导出丢失最后一行的问题，先复现并给出测试证据
 ```
 
-当前 Codex CLI 已确认能加载 `$deepstack`，并能自动运行确定性预检，单模型生产迁移探针返回 `L2 + SAME_MODEL_REVIEW`；可用模型仍写 `未确认`。插件未安装或没有确认技能加载和 `model-policy` 时，必须标记 `ROUTER_UNVERIFIED`。
+当前 Codex CLI 已确认能加载 `$deepstack`，单模型生产迁移探针返回 `L2 + SAME_MODEL_REVIEW`；一次探针观察到确定性预检脚本被调用，但脚本调用本身不作为宿主保证，可用模型仍写 `未确认`。插件未安装或没有确认技能加载和 `model-policy` 时，必须标记 `ROUTER_UNVERIFIED`。
 
 ### ZCode
 
