@@ -92,6 +92,46 @@ node scripts/ci-evidence.mjs /path/to/project <完整40位实现提交SHA> --req
 
 `node scripts/verify.mjs` 会额外执行本模块的 Node 内建测试，包含分支限制、远端变化、脏工作树、锁冲突、凭证伪造、混合栈命令、越界拒绝、超时及 CI 缺失等反例。现有 Goal、宿主路由和质量门 schema 1 均保留。
 
+## 暂存区一致性与只读评审证据（第三批）
+
+TVNEWS 原有的 `precommit_gate.py` 有潜在的「已暂存 A、工作区变为 B，却对 B 执行检查后提交 A」风险。新增纯 Node.js 检查，不重新实现 Python 或 Node 技术栈的测试框架：
+
+```bash
+# 在 DeepStack 安装目录运行，下方路径为目标项目
+node scripts/staged-check.mjs inspect /path/to/project
+node scripts/staged-check.mjs run /path/to/project \
+  --manifest /path/to/project/deepstack-quality-gate.json --component backend --category test \
+  > /tmp/deepstack-backend-test.json
+```
+
+只有 Git index 有变更、暂存内容与工作区一致、没有未跟踪文件，才执行项目可信质量门。测试运行之后再次取 Git HEAD、index tree 与工作区快照，任何暂存区被改、未暂存改动或新生成的未跟踪文件都会使结果变为 `FAIL`。如果未暂存文件参与模块导入，风险尤其明显，故这里保守拒绝未跟踪文件。检查本身并非沙箱；忽略文件和运行中瞬时副作用不能由此保证。运行记录包含 `headSha`（提交前父提交）及 `indexTreeSha`（当时暂存的整棵树）；若测试只在非暂存工作区运行，不构成这种证据。
+
+项目把需要的工程验证配置在**提交过的** `deepstack.config.json` 中：
+
+```json
+{
+  "verification": {
+    "requiredWorkflows": ["validate"],
+    "requiredLocalChecks": [
+      {"component": "backend", "category": "test"},
+      {"component": "web", "category": "test"}
+    ]
+  }
+}
+```
+
+其中的 `validate` 只是示例，真实必需工作流由该项目声明。`requiredLocalChecks: []` 必须**显式**写出才允许只用 CI 准备评审；不配置不会默认为零要求。提交前可将多个本地检查的 JSON 记录到仓库外临时路径；提交后运行：
+
+```bash
+node scripts/review-evidence.mjs /path/to/project <完整40位实现提交SHA> \
+  --check-report /tmp/deepstack-backend-test.json \
+  --check-report /tmp/deepstack-web-test.json
+```
+
+评审入口**从被评审提交自身读取版本化 `deepstack.config.json`**，核对真实 Git commit 的父 SHA 与 tree SHA 是否等于检查时的快照，并即时查询 GitHub Actions 的 exact-SHA 必需工作流。输出 `READY_FOR_HUMAN_REVIEW` / `INCOMPLETE` / `BLOCKED`；唯一人工裁决字段始终为 `WAIT_HUMAN`。本地 JSON 是调用者提供的未签名记录，不是可靠的远程证明；最终仍须通过独立 CI、diff review 和项目 Authority。CLI 不直接触发 `git commit`、push、PR 合并或 Issue 状态修改。
+
+这些脚本不取代原有 `node scripts/quality-gate.mjs` 的执行能力，也不要求另建 CI/进度状态数据库。新项目不使用 DeepStack 的暂存区质量门时仍可单独使用原有质量门，但不能把它的检查输出冒充暂存一致性证明。
+
 ## GitHub Issues 与反例矩阵（第二批）
 
 DeepStack 已提供原生 Node.js 的 `scripts/issue-governance.mjs`：从 GitHub Issues **实时读取**索引标签和验收边界，输出状态分布、按 `REWORK → READY → NEEDS_VERIFY` 排序的**候选列表**及未验证反例矩阵。**候选≠CURRENT≠执行授权**；具体执行仍必须先遵守项目 `AGENTS.md` / CURRENT / 权限约束。工具不修改 GitHub Issue、不维护离线任务数据库，也不会凭评论日期或提交关键词自动判定工程完成。

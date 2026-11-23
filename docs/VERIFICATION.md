@@ -72,3 +72,7 @@ node scripts/model-policy.mjs --independent-review absent "<L2 任务>"
 真实仓库的 CI 查询入口：`node scripts/ci-evidence.mjs <repo> <full-sha> --required <workflow>`。完整配置与限制见 [工程治理内核](./ENGINEERING-GOVERNANCE.md)。原有 `quality-gate.mjs` schema 1 fixture 继续回归。
 
 第二批 Issue 适配测试覆盖精确索引、状态优先级、owner 门禁、否定式约束与人工矩阵防覆盖；不把模拟 Issue 的单测当作真实 GitHub Issue 自动开发验收。
+
+## 暂存区 / 评审一致性反例
+
+`tests/staged-check.test.mjs` 检测 index 与工作区不一致、未跟踪文件、无暂存、测试运行中的源码修改，以及 index tree 在测试前后的变化。`tests/review-evidence.test.mjs` 将该 tree 与真实待审提交的 parent/tree 配对，并要求精确 SHA 的必需 CI 和项目明确声明的本地检查均满足，且永不把机器证据视为 owner 验收。实际复核入口见 [工程治理内核](./ENGINEERING-GOVERNANCE.md)。

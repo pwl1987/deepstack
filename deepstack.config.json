@@ -1,0 +1,12 @@
+{
+  "git": {
+    "workflow": "branch-pr",
+    "baseBranch": "main",
+    "remote": "origin",
+    "writerPolicy": "none"
+  },
+  "verification": {
+    "requiredWorkflows": ["validate"],
+    "requiredLocalChecks": []
+  }
+}

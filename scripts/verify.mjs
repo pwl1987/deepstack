@@ -146,7 +146,7 @@ function runHostAcceptanceSuite() {
 }
 
 function runScmAndMixedSuites() {
-  const child = spawnSync(process.execPath, ["--test", "tests/scm-workflow.test.mjs", "tests/quality-gate-mixed.test.mjs", "tests/ci-evidence.test.mjs", "tests/issue-governance.test.mjs"], {
+  const child = spawnSync(process.execPath, ["--test", "tests/scm-workflow.test.mjs", "tests/quality-gate-mixed.test.mjs", "tests/ci-evidence.test.mjs", "tests/issue-governance.test.mjs", "tests/staged-check.test.mjs", "tests/review-evidence.test.mjs"], {
     cwd: root, encoding: "utf8", timeout: 120_000, shell: false,
   });
   record("scm-and-mixed-stack", child.status === 0,
@@ -174,7 +174,7 @@ const summary = {
     "Imported host evidence cannot elevate to live verified",
     "Does not install dependencies or call paid APIs",
     "readonly-guard detects repo deltas; it is not a host sandbox",
-    "quality-gate run trusts manifest allow-list and package.json scripts only",
+    "quality-gate schema 1 uses approved npm scripts; schema 2 executes trusted tracked argv manifests; neither is a sandbox",
   ],
   results,
 };

@@ -76,7 +76,7 @@ node scripts/readonly-guard.mjs verify "$(git rev-parse --show-toplevel)" /tmp/d
 
 ## 工程治理核心：原生 Node.js（增量迁移）
 
-DeepStack 在当前开发分支增加了可选的 **Git/main-only、同机单 Writer、前置凭证、推送前远端核验、混合 Python/Node 质量门、exact-SHA CI 证据，以及 GitHub Issue 候选/反例矩阵**。这是对 TVNEWS Python 通用流程能力的重新设计，不要求 DeepStack 运行 Python 模块，也不会替换项目本身的 Python 技术栈。
+DeepStack 在当前开发分支增加了可选的 **Git/main-only、同机单 Writer、前置凭证、推送前远端核验、混合 Python/Node 质量门、exact-SHA CI 证据、GitHub Issue 候选/反例矩阵，以及暂存区/评审证据一致性检查**。这是对 TVNEWS Python 通用流程能力的重新设计，不要求 DeepStack 运行 Python 模块，也不会替换项目本身的 Python 技术栈。
 
 `main-only` 不会自动强加给所有项目；项目须通过 `deepstack.config.json` 明确选择。无 Git 基线、无必需 CI 或无有效 Writer 时不能假装具备完成证据。详细配置、执行边界和**仍未迁移的功能**见 [Node.js 工程治理内核](docs/ENGINEERING-GOVERNANCE.md)。
 
