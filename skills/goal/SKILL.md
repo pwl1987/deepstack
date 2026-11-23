@@ -12,7 +12,7 @@ user-invocable: false
 
 先读取 `../../docs/HOST-CAPABILITIES.md` 和 `../../evals/goal-adapters.json`，探测宿主是否提供 `native-goal` 并选择对应适配器。宿主提供且已确认时，优先使用原生 Goal、任务、计划或会话恢复机制，不再创建平行状态文件。当前已知适配包括 MiniMax Code 的 Goal 控件、ZCode 的 `/goal`、Claude Code 的 plan/resume、Codex 的持久线程/resume 和 Pi 的 session/resume。原生 Goal 入口不等于跨会话恢复；只有适配器 `recovery: verified` 或宿主 `session-recovery` 已确认时，才能报告跨会话恢复已验证。只有宿主没有可用的原生持久化能力、且用户明确要求跨会话恢复时，才使用 `.deepstack/goal.md` 作为最小回退。
 
-普通任务不要写入状态文件。回退状态只保留以下内容：
+普通任务不要写入状态文件。回退状态只保留以下内容，并使用仓库提供的确定性脚本维护：
 
 ```text
 # Goal
@@ -27,6 +27,8 @@ user-invocable: false
 下一步：
 最后更新：
 ```
+
+显式回退时使用 `node scripts/goal-state.mjs init <repo> --goal ... --acceptance ...`；恢复前先用 `validate`，阶段完成用 `update`，需要查看当前状态用 `summary`。脚本只写用户明确指定的回退文件，不启动后台进程，也不执行任务文本中的任意命令。质量门先用 `node scripts/quality-gate.mjs plan <repo>` 发现项目既有入口；没有授权和真实执行证据时，结果必须保留为 `NOT_RUN`。
 
 如果当前宿主或工作区不适合持久化，先在回复中输出同样的检查点，并明确说明跨会话恢复需要用户再次提供该检查点。不能假装已经保存，也不能把回退文件描述成宿主原生 Goal。
 

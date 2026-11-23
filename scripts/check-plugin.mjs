@@ -120,6 +120,9 @@ if (!fs.existsSync(path.join(root, "scripts", "model-policy.mjs"))) {
 if (!fs.existsSync(path.join(root, "scripts", "readonly-guard.mjs"))) {
   errors.push("scripts/readonly-guard.mjs: missing readonly baseline guard");
 }
+for (const script of ["goal-state.mjs", "quality-gate.mjs"]) {
+  if (!fs.existsSync(path.join(root, "scripts", script))) errors.push(`scripts/${script}: missing deterministic workflow helper`);
+}
 
 const routeCases = readJsonFile("evals/router-cases.json");
 const allowedRoutes = new Set(["investigation", "pickup", "delivery", "goal", "bug-fix", "refactor", "feature"]);
@@ -241,6 +244,27 @@ if (!goalAdapters || goalAdapters.version !== 2 || !Array.isArray(goalAdapters.a
   }
   for (const host of ["claude-code", "codex-cli", "pi-agent", "zcode", "minimax-code"]) {
     if (!adapterHosts.has(host)) errors.push(`evals/goal-adapters.json: missing adapter for ${host}`);
+  }
+}
+
+const goalState = readJsonFile("evals/goal-state.json");
+if (!goalState || goalState.version !== 1 || goalState.file !== ".deepstack/goal.md" || !Array.isArray(goalState.required) || !Array.isArray(goalState.statuses) || goalState.policy !== "fallback-only-explicit") {
+  errors.push("evals/goal-state.json: expected version 1, fallback file, required fields, statuses, and explicit fallback policy");
+} else {
+  for (const key of ["schema", "status", "goal", "scope", "non_goals", "constraints", "acceptance", "current_phase", "evidence", "blockers", "next_step", "updated_at"]) {
+    if (!goalState.required.includes(key)) errors.push(`evals/goal-state.json: missing required field ${key}`);
+  }
+}
+
+const qualityGate = readJsonFile("evals/quality-gate.json");
+if (!qualityGate || qualityGate.version !== 1 || !Array.isArray(qualityGate.categories) || !Array.isArray(qualityGate.statuses) || qualityGate.execution !== "plan-only-until-authorized" || qualityGate.policy !== "fixed-discovery-no-install-no-arbitrary-command") {
+  errors.push("evals/quality-gate.json: expected deterministic plan-only quality gate contract");
+} else {
+  for (const category of ["format", "lint", "type", "test", "security"]) {
+    if (!qualityGate.categories.includes(category)) errors.push(`evals/quality-gate.json: missing category ${category}`);
+  }
+  for (const status of ["PASS", "FAIL", "NOT_CONFIGURED", "SKIPPED", "NOT_RUN"]) {
+    if (!qualityGate.statuses.includes(status)) errors.push(`evals/quality-gate.json: missing status ${status}`);
   }
 }
 
