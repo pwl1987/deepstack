@@ -146,7 +146,7 @@ function runHostAcceptanceSuite() {
 }
 
 function runScmAndMixedSuites() {
-  const child = spawnSync(process.execPath, ["--test", "tests/scm-workflow.test.mjs", "tests/quality-gate-mixed.test.mjs", "tests/ci-evidence.test.mjs"], {
+  const child = spawnSync(process.execPath, ["--test", "tests/scm-workflow.test.mjs", "tests/quality-gate-mixed.test.mjs", "tests/ci-evidence.test.mjs", "tests/issue-governance.test.mjs"], {
     cwd: root, encoding: "utf8", timeout: 120_000, shell: false,
   });
   record("scm-and-mixed-stack", child.status === 0,

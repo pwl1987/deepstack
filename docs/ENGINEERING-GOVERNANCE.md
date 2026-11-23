@@ -92,6 +92,39 @@ node scripts/ci-evidence.mjs /path/to/project <完整40位实现提交SHA> --req
 
 `node scripts/verify.mjs` 会额外执行本模块的 Node 内建测试，包含分支限制、远端变化、脏工作树、锁冲突、凭证伪造、混合栈命令、越界拒绝、超时及 CI 缺失等反例。现有 Goal、宿主路由和质量门 schema 1 均保留。
 
+## GitHub Issues 与反例矩阵（第二批）
+
+DeepStack 已提供原生 Node.js 的 `scripts/issue-governance.mjs`：从 GitHub Issues **实时读取**索引标签和验收边界，输出状态分布、按 `REWORK → READY → NEEDS_VERIFY` 排序的**候选列表**及未验证反例矩阵。**候选≠CURRENT≠执行授权**；具体执行仍必须先遵守项目 `AGENTS.md` / CURRENT / 权限约束。工具不修改 GitHub Issue、不维护离线任务数据库，也不会凭评论日期或提交关键词自动判定工程完成。
+
+在项目 `deepstack.config.json` 增加适配声明（下列只是示例，状态标签完全由项目维护）：
+
+```json
+{
+  "issueIndex": {
+    "marker": "delivery-index/v1",
+    "statusLabels": {
+      "workflow:rework": "REWORK",
+      "workflow:ready": "READY",
+      "workflow:needs-verify": "NEEDS_VERIFY",
+      "workflow:done": "DONE"
+    },
+    "ownerGateLabels": ["owner:required"],
+    "boundarySection": "Acceptance Criteria",
+    "matrixDir": ".project/matrices"
+  }
+}
+```
+
+```bash
+node scripts/issue-governance.mjs status /path/to/project
+node scripts/issue-governance.mjs candidates /path/to/project
+node scripts/issue-governance.mjs matrix /path/to/project --issue 123
+# 只有明确授权写文件时才指定 --write，且永不覆盖既有人工内容
+node scripts/issue-governance.mjs matrix /path/to/project --issue 123 --write
+```
+
+其中 `issueIndex` 只描述如何读取已有原生 Issue，不得变成另一套人工维护的任务列表。`matrix` 只输出反例义务和 `UNVERIFIED`，不把文案匹配、测试文件存在或模型自述当作覆盖通过。
+
 ## 尚未迁移
 
-TVNEWS 的 GitHub Issue 标记/父子关系适配、S1–S9 阶段推导、反例矩阵与评审包、质量记分和进度视图**尚未搬入此核心**。这些能力需要先剥离 TVNEWS 业务语义，再用 Node.js 实现。不要复制旧 Python 脚本，也不要将当前工程模块声称为完整的 TVNEWS 流程替换。TVNEWS 旧脚本在完成兼容性迁移前必须保留。
+TVNEWS 的 GitHub Issue 专属父子关系适配、S1–S9 阶段推导、完整 Review Pack、质量记分和进度视图**尚未搬入此核心**。这些能力需要先剥离 TVNEWS 业务语义，再用 Node.js 实现。不要复制旧 Python 脚本，也不要将当前工程模块声称为完整的 TVNEWS 流程替换。TVNEWS 旧脚本在完成兼容性迁移前必须保留。
