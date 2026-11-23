@@ -10,7 +10,7 @@
 | Codex CLI | 0.166.0 CLI；exec 显示 0.170.0 | 在临时项目中加载 `skills/`，分别验证无源代码和有源代码的只读调查 | 通过 | 临时项目中的一次沙箱探测警告未导致写入 |
 | Pi Agent | 1.6.0 | 通过 `--skill` 加载 DeepStack，执行只读调查并返回代码行证据 | 通过 | 无测试入口时正确标记运行验证未完成 |
 | ZCode | 3.19.1 | 从插件市场安装并加载 `deepstack` | 部分通过 | 本地路径对客户端不可见；GitHub 分支页面 URL 不被接受；只验证了默认分支安装，当前 PR 分支路由未验证 |
-| MiniMax Code | 3.1.17 | 从 Git 仓库导入当前 PR 分支，预览 `v0.2.0`、13 个技能，启用后运行只读调查 | 部分通过 | DeepStack 成功加载并进入调查流程；宿主工作区是多项目集合，任务扩大了搜索范围，最终规范化路由输出未完成验证 |
+| MiniMax Code | 3.1.17 | 在独立新任务中加载 DeepStack，执行高风险只读路由探针 | 部分通过 | 成功加载技能并返回五个标签，但路由为 `feature`，降级为 persona 顺序审查，并输出当前会话模型；未满足 `L2 + SAME_MODEL_REVIEW + 未确认` |
 
 ## 原生 Goal 与会话恢复专项核验
 
@@ -34,4 +34,4 @@
 
 ## 模型策略跨宿主探针
 
-2026-11-23 使用同一条生产认证字段迁移输入做单模型路由检查：Claude Code 已加载 DeepStack，输出 `L2 + SAME_MODEL_REVIEW`；Codex CLI 刷新 `deepstack@deepstack` 后使用 `$deepstack`，重复探针均输出 `L2 + SAME_MODEL_REVIEW` 与 `可用模型：未确认`，其中一次明确运行了确定性预检脚本，另一次没有暴露该工具调用，因此只确认路由契约，不把脚本调用本身写成宿主保证；Pi Agent 加载当前路由器并允许只读工具后，运行确定性预检并输出完整的五字段契约，同样得到 `L2 + SAME_MODEL_REVIEW` 与 `可用模型：未确认`。Codex 与 Pi 的首次引导探针均显示 `UNVERIFIED`，因为当时能力矩阵尚未记录 `model-policy`；完成记录后，两者的风险分级和降级契约已确认。机器可读记录见 [model-policy.json](../evals/model-policy.json)。
+2026-11-23 使用同一条生产认证字段迁移输入做单模型路由检查：Claude Code 已加载 DeepStack，输出 `L2 + SAME_MODEL_REVIEW`；Codex CLI 刷新 `deepstack@deepstack` 后使用 `$deepstack`，重复探针均输出 `L2 + SAME_MODEL_REVIEW` 与 `可用模型：未确认`，其中一次明确运行了确定性预检脚本，另一次没有暴露该工具调用，因此只确认路由契约，不把脚本调用本身写成宿主保证；Pi Agent 加载当前路由器并允许只读工具后，运行确定性预检并输出完整的五字段契约，同样得到 `L2 + SAME_MODEL_REVIEW` 与 `可用模型：未确认`。ZCode 成功加载插件但返回旧版 `tdd` 路由和宿主模型清单；MiniMax Code 返回 `feature` 路由、persona 顺序降级和当前会话模型。后两者均保持 `ROUTER_UNVERIFIED`，机器可读记录见 [model-policy.json](../evals/model-policy.json)。

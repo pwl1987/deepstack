@@ -38,11 +38,14 @@ DeepStack 不根据模型品牌、版本号或宣传名称判断能力。能力�
 每次进入内部步骤时报告：
 
 ```text
+路由器状态：<已路由 / UNVERIFIED>
+路由：<主流程>
 模型策略：L0 / L1 / L2
-可用模型：单模型 / 独立上下文 / 独立模型
-升级触发：<命中的风险或“无”>
-本轮降级：<没有 / SAME_MODEL_REVIEW / ROUTER_UNVERIFIED / 其他原因>
+降级：<无 / SAME_MODEL_REVIEW / ROUTER_UNVERIFIED>
+可用模型：<当前注册表中的名称 / 未确认>
 ```
+
+字段名必须逐字使用上面的五个名称；不得用 `主流程`、`升级触发` 或 `本轮降级` 代替它们。
 
 模型名称只能作为记录，不能作为能力证据。真实测试、质量门和独立审查结果优先于模型自述。
 
@@ -53,3 +56,5 @@ DeepStack 不根据模型品牌、版本号或宣传名称判断能力。能力�
 ## 最近一次单模型探针
 
 2026-11-23 在 Claude Code 上使用单模型完成了路由契约探针：小范围只读解释命中 `L0`，跨 API/前端/测试的功能方案命中 `L1`，生产认证字段迁移命中 `L2` 并标记 `SAME_MODEL_REVIEW`。探针只验证路由输出，没有执行代码修改、质量门、独立审查或部署；机器可读结果见 [model-policy.json](../evals/model-policy.json)。
+
+同日的跨宿主探针确认 Claude Code、Codex CLI 和 Pi Agent 返回统一的五字段契约；ZCode 虽成功安装并加载插件，但当前默认源返回旧版 `tdd` 路由和宿主自报模型清单，未满足 `L2 + SAME_MODEL_REVIEW + 未确认`；MiniMax Code 返回自定义 `feature` 路由和顺序化 persona 降级，也未满足统一契约。两者的 `model-policy` 保持未确认，详见 [model-policy.json](../evals/model-policy.json)。
