@@ -74,6 +74,14 @@ node scripts/readonly-guard.mjs verify "$(git rev-parse --show-toplevel)" /tmp/d
 
 没有运行证据的结果会标为 `NOT_CONFIGURED`、`SKIPPED` 或 `UNVERIFIED`，不会写成通过。
 
+## 工程治理核心：原生 Node.js（增量迁移）
+
+DeepStack 在当前开发分支增加了可选的 **Git/main-only、同机单 Writer、前置凭证、推送前远端核验、混合 Python/Node 质量门与 exact-SHA CI 证据**。这是对 TVNEWS Python 通用流程能力的重新设计，不要求 DeepStack 运行 Python 模块，也不会替换项目本身的 Python 技术栈。
+
+`main-only` 不会自动强加给所有项目；项目须通过 `deepstack.config.json` 明确选择。无 Git 基线、无必需 CI 或无有效 Writer 时不能假装具备完成证据。详细配置、执行边界和**仍未迁移的功能**见 [Node.js 工程治理内核](docs/ENGINEERING-GOVERNANCE.md)。
+
+本阶段首先实现可验证的机器检查，后续将逐项迁移 TVNEWS 独有的 Issue/调度/评审能力；不把两个项目写入同一套状态数据库。`/deepstack` 的宿主依赖与实际验证范围仍以本仓库宿主验收为准。
+
 ## 安装
 
 ### Claude Code

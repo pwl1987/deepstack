@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "readonlySkipCategories": ["format"],
+  "components": {
+    "backend": {
+      "cwd": "backend",
+      "allow": {
+        "test": { "executable": "python3", "args": ["-B", "-m", "unittest", "discover", "-s", "."] }
+      }
+    },
+    "frontend": {
+      "cwd": "frontend",
+      "allow": {
+        "test": { "executable": "npm", "args": ["run", "test"] }
+      }
+    }
+  }
+}

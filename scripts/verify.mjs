@@ -145,6 +145,15 @@ function runHostAcceptanceSuite() {
   );
 }
 
+function runScmAndMixedSuites() {
+  const child = spawnSync(process.execPath, ["--test", "tests/scm-workflow.test.mjs", "tests/quality-gate-mixed.test.mjs", "tests/ci-evidence.test.mjs"], {
+    cwd: root, encoding: "utf8", timeout: 120_000, shell: false,
+  });
+  record("scm-and-mixed-stack", child.status === 0,
+    child.status === 0 ? "native Node.js tests PASS" : (child.stderr || child.stdout).slice(-4000));
+}
+
+runScmAndMixedSuites();
 runCheckPlugin();
 runHostsNegativeChecks();
 runHostAcceptanceSuite();

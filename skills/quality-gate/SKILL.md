@@ -12,7 +12,7 @@ user-invocable: false
 
 优先读取项目已有的 package scripts、Makefile/justfile、pyproject、Cargo、Go、Gradle/Maven、CI 配置和贡献文档。使用项目已经选择的命令，不替换工具链，不自动安装依赖。
 
-仓库提供 `node scripts/quality-gate.mjs plan <repo>` 发现命令；`run` 仅在 manifest 的 `allow.<category>` 与 `package.json` scripts 一致、且形状为 `npm run <script>` 时执行。只读任务使用 `--mode readonly` 并跳过 `readonlySkipCategories`。不得把 `NOT_CONFIGURED`、`REJECTED`、`TIMEOUT` 写成通过。离线行为回归见 `node scripts/verify.mjs`。
+仓库提供 `node scripts/quality-gate.mjs plan <repo>` 发现命令；`run` 保留 schema 1 的既有 `npm run <script>` 白名单执行方式；新增 schema 2 仅允许仓库内已跟踪可信 manifest 声明的组件式 `executable` + `args` + `cwd` 命令（`shell:false`），可执行 Python/Node 混合项目已有工具，拒绝未授权动态命令、工作目录越界及 shell wrapper。只读任务使用 `--mode readonly` 并跳过 `readonlySkipCategories`。不得把 `NOT_CONFIGURED`、`REJECTED`、`TIMEOUT` 写成通过。离线行为回归见 `node scripts/verify.mjs`。
 
 ## 执行顺序
 

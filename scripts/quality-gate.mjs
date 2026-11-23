@@ -9,9 +9,9 @@ const REPORT_STATUS = new Set(["PASS", "FAIL", "NOT_CONFIGURED", "SKIPPED", "NOT
 
 function usage() {
   console.error("Usage: node scripts/quality-gate.mjs <plan|validate|run> ...");
-  console.error("  plan <repo>");
+  console.error("  plan <repo> [--manifest <file>]");
   console.error("  validate <report.json>");
-  console.error("  run <repo> --manifest <file> --mode <readonly|write-authorized> [--category <name>] [--allow-command <cmd>] [--timeout-ms <n>]");
+  console.error("  run <repo> --manifest <file> --mode <readonly|write-authorized> [--category <name>] [--component <id>] [--allow-command <cmd>] [--timeout-ms <n>]");
   process.exitCode = 2;
 }
 
@@ -74,7 +74,21 @@ function execute(repo, command, timeoutMs) {
   return { status, exitCode: child.status, elapsedMs, stdout: child.stdout || "", stderr: child.stderr || "" };
 }
 
-function plan(repoInput) {
+function plan(repoInput, manifestInput = null) {
+  if (manifestInput) {
+    const manifest = readJson(path.resolve(manifestInput));
+    if (manifest.schema === 2) {
+      const components = {};
+      for (const [id, component] of Object.entries(manifest.components || {})) {
+        components[id] = Object.fromEntries(CATEGORIES.map(category => [category,
+          component.allow?.[category] ? { status: "NOT_RUN", command: component.allow[category] }
+            : { status: "NOT_CONFIGURED", command: null }]));
+      }
+      const result = { schema: 2, command: "plan", status: "NOT_RUN", components };
+      console.log(JSON.stringify(result, null, 2));
+      return result;
+    }
+  }
   const repo = path.resolve(repoInput);
   if (!fs.existsSync(repo) || !fs.statSync(repo).isDirectory()) throw new Error(`repository directory not found: ${repo}`);
   const checks = Object.fromEntries(CATEGORIES.map((category) => [category, commandFor(repo, category)]));
@@ -108,9 +122,95 @@ function validateReport(reportInput) {
   return payload;
 }
 
+// Schema 2: explicitly configured, trusted, argv-based commands for mixed stacks.
+// This is a command runner, NOT a sandbox. The repository's tracked manifest is trusted code.
+const UNSAFE_EXECUTABLES = new Set(["sh", "bash", "dash", "zsh", "fish", "pwsh", "powershell", "cmd", "cmd.exe"]);
+function within(base, file) {
+  const relative = path.relative(base, file);
+  return relative !== "" && relative !== ".." && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
+}
+function trackedManifest(repo, manifestFile) {
+  const gitRoot = spawnSync("git", ["rev-parse", "--show-toplevel"], {
+    cwd: repo, encoding: "utf8", shell: false,
+  });
+  if (gitRoot.status !== 0) return false;
+  const root = fs.realpathSync(gitRoot.stdout.trim());
+  const full = fs.realpathSync(manifestFile);
+  if (!within(root, full)) return false;
+  const relative = path.relative(root, full);
+  const tracked = spawnSync("git", ["ls-files", "--error-unmatch", "--", relative], {
+    cwd: root, encoding: "utf8", shell: false,
+  });
+  return tracked.status === 0;
+}
+function componentCommand(repo, manifest, options) {
+  if (options.allowCommand) return { status: "REJECTED", reason: "dynamic-command-override-forbidden" };
+  const id = options.component;
+  if (!id || !/^[a-zA-Z0-9_-]{1,80}$/.test(id)) return { status: "REJECTED", reason: "component-required" };
+  const component = manifest.components?.[id];
+  if (!component) return { status: "REJECTED", reason: "unknown-component" };
+  const command = component.allow?.[options.category || "test"];
+  if (!command) return { status: "NOT_CONFIGURED", reason: "no-authorized-command" };
+  if (typeof command !== "object" || Array.isArray(command)) return { status: "REJECTED", reason: "invalid-command" };
+  const executable = command.executable;
+  const args = command.args;
+  if (typeof executable !== "string" || !/^[a-zA-Z0-9][a-zA-Z0-9._+-]*$/.test(executable) ||
+      UNSAFE_EXECUTABLES.has(executable.toLowerCase()) || !Array.isArray(args) ||
+      args.length > 128 || args.some(arg => typeof arg !== "string" || arg.includes("\0") || arg.length > 4096)) {
+    return { status: "REJECTED", reason: "invalid-argv" };
+  }
+  const relativeCwd = component.cwd ?? ".";
+  if (typeof relativeCwd !== "string" || !relativeCwd.length || path.isAbsolute(relativeCwd)) {
+    return { status: "REJECTED", reason: "invalid-cwd" };
+  }
+  const cwd = path.resolve(repo, relativeCwd);
+  if (!fs.existsSync(cwd) || !fs.statSync(cwd).isDirectory()) return { status: "REJECTED", reason: "missing-cwd" };
+  const realRoot = fs.realpathSync(repo), realCwd = fs.realpathSync(cwd);
+  if (realRoot !== realCwd && !within(realRoot, realCwd)) return { status: "REJECTED", reason: "cwd-escape" };
+  return { status: "AUTHORIZED", executable, args, cwd, component: id };
+}
+function runComponent(repo, manifest, options) {
+  const category = options.category || "test";
+  const mode = options.mode || "write-authorized";
+  if (!CATEGORIES.includes(category) || !["readonly", "write-authorized"].includes(mode)) {
+    return { schema: 2, command: "run", status: "REJECTED", reason: "invalid-mode-or-category" };
+  }
+  if (!trackedManifest(repo, path.resolve(options.manifest))) {
+    return { schema: 2, command: "run", status: "REJECTED", reason: "manifest-not-tracked-inside-repo" };
+  }
+  if (mode === "readonly" && (manifest.readonlySkipCategories || ["format"]).includes(category)) {
+    return { schema: 2, command: "run", category, status: "SKIPPED", reason: "readonly-skip" };
+  }
+  const spec = componentCommand(repo, manifest, { ...options, category });
+  if (spec.status !== "AUTHORIZED") return { schema: 2, command: "run", category, component: options.component, ...spec };
+  const timeoutMs = Number(options.timeoutMs || 30_000);
+  if (!Number.isSafeInteger(timeoutMs) || timeoutMs <= 0 || timeoutMs > 3_600_000) {
+    return { schema: 2, command: "run", status: "REJECTED", reason: "invalid-timeout" };
+  }
+  const started = Date.now();
+  const child = spawnSync(spec.executable, spec.args, {
+    cwd: spec.cwd, encoding: "utf8", shell: false, timeout: timeoutMs,
+    env: { ...process.env, GIT_TERMINAL_PROMPT: "0" },
+  });
+  const status = child.error?.code === "ETIMEDOUT" ? "TIMEOUT"
+    : child.error?.code === "ENOENT" ? "NOT_CONFIGURED"
+    : child.status === 0 ? "PASS" : "FAIL";
+  return { schema: 2, command: "run", category, component: spec.component,
+    status, executable: spec.executable, args: spec.args, cwd: spec.cwd,
+    exitCode: child.status, elapsedMs: Date.now() - started,
+    stdoutTail: (child.stdout || "").slice(-400),
+    stderrTail: (child.stderr || child.error?.message || "").slice(-400) };
+}
+
 function runCategory(repoInput, options) {
   const repo = path.resolve(repoInput);
   const manifest = readJson(path.resolve(options.manifest));
+  if (manifest.schema === 2) {
+    const result = runComponent(repo, manifest, options);
+    console.log(JSON.stringify(result));
+    if (["FAIL", "TIMEOUT", "REJECTED"].includes(result.status)) process.exitCode = 1;
+    return result;
+  }
   const mode = options.mode || "write-authorized";
   const category = options.category || "test";
   const timeoutMs = Number(options.timeoutMs || 30_000);
@@ -162,6 +262,7 @@ function parseRunArgs(argv) {
     if (token === "--manifest") options.manifest = argv[++index];
     else if (token === "--mode") options.mode = argv[++index];
     else if (token === "--category") options.category = argv[++index];
+    else if (token === "--component") options.component = argv[++index];
     else if (token === "--allow-command") options.allowCommand = argv[++index];
     else if (token === "--timeout-ms") options.timeoutMs = argv[++index];
     else throw new Error(`unknown run option: ${token}`);
@@ -172,7 +273,10 @@ function parseRunArgs(argv) {
 
 const [command, ...rest] = process.argv.slice(2);
 try {
-  if (command === "plan" && rest[0]) plan(rest[0]);
+  if (command === "plan" && rest[0]) {
+    const ix = rest.indexOf("--manifest");
+    plan(rest[0], ix >= 0 ? rest[ix + 1] : null);
+  }
   else if (command === "validate" && rest[0]) validateReport(rest[0]);
   else if (command === "run") {
     const { repo, options } = parseRunArgs(rest);

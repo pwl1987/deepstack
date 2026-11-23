@@ -1,0 +1,1 @@
+{"schema":2,"components":{"backend":{"cwd":"frontend","allow":{"test":{"executable":"node","args":["slow.mjs"]}}}}}

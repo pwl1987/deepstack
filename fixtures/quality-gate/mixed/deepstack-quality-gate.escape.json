@@ -1,0 +1,1 @@
+{"schema":2,"components":{"backend":{"cwd":"..","allow":{"test":{"executable":"node","args":["--version"]}}}}}

@@ -65,3 +65,8 @@ node scripts/model-policy.mjs --independent-review absent "<L2 任务>"
 ## 与 RSI 的边界
 
 本里程碑**不是** RSI（仓库未定义）。它不自动改写技能、记忆或规则，只提供失败时会变红的契约测试，为后续受控改进提供基线。
+## 工程治理 Node.js 迁移测试
+
+`node scripts/verify.mjs` 额外运行 `tests/scm-workflow.test.mjs`、`tests/quality-gate-mixed.test.mjs` 与 `tests/ci-evidence.test.mjs`。其中 main-only 检查执行真实本地 Git 仓库与模拟远端，验证分支、脏树、推送前远端变化、Writer 租约及凭证失效；质量门 schema 2 测试运行 Python unittest 和 npm，含越界、缺工具和超时反例；CI 证据测试验证完整 SHA 与必需工作流的严格匹配。
+
+真实仓库的 CI 查询入口：`node scripts/ci-evidence.mjs <repo> <full-sha> --required <workflow>`。完整配置与限制见 [工程治理内核](./ENGINEERING-GOVERNANCE.md)。原有 `quality-gate.mjs` schema 1 fixture 继续回归。
