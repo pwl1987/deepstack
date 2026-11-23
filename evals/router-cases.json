@@ -42,6 +42,11 @@
       "expectedRoute": "investigation"
     },
     {
+      "id": "routing-probe-wrapper-wins",
+      "prompt": "只做路由探针，不修改文件。任务：迁移生产认证记录，新增必填凭证字段并部署。只返回五个路由字段。",
+      "expectedRoute": "investigation"
+    },
+    {
       "id": "delivery-authority-boundary",
       "prompt": "准备发布说明和验证结果，但不要推送或发布。",
       "expectedRoute": "delivery"
