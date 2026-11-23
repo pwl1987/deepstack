@@ -6,6 +6,6 @@
     {"id": "codex-cli", "confirmed": ["single-entry", "skill-loading", "readonly-execution", "native-goal", "session-recovery", "model-policy"], "unknown": ["parallel-agents", "isolated-workspace", "external-cli", "quality-gate"]},
     {"id": "pi-agent", "confirmed": ["single-entry", "skill-loading", "readonly-execution", "native-goal", "session-recovery", "model-policy"], "unknown": ["parallel-agents", "isolated-workspace", "external-cli", "quality-gate"]},
     {"id": "zcode", "confirmed": ["skill-loading", "native-goal"], "unknown": ["single-entry", "readonly-execution", "parallel-agents", "isolated-workspace", "external-cli", "quality-gate", "session-recovery", "model-policy"]},
-    {"id": "minimax-code", "confirmed": ["skill-loading", "readonly-execution", "native-goal"], "unknown": ["single-entry", "parallel-agents", "isolated-workspace", "external-cli", "quality-gate", "session-recovery", "model-policy"]}
+    {"id": "minimax-code", "confirmed": ["single-entry", "skill-loading", "readonly-execution", "native-goal", "model-policy"], "unknown": ["parallel-agents", "isolated-workspace", "external-cli", "quality-gate", "session-recovery"]}
   ]
 }

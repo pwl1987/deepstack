@@ -10,7 +10,7 @@
 | Codex CLI | 0.166.0 CLI；exec 显示 0.170.0 | 在临时项目中加载 `skills/`，分别验证无源代码和有源代码的只读调查 | 通过 | 临时项目中的一次沙箱探测警告未导致写入 |
 | Pi Agent | 1.6.0 | 通过 `--skill` 加载 DeepStack，执行只读调查并返回代码行证据 | 通过 | 无测试入口时正确标记运行验证未完成 |
 | ZCode | 3.19.1 | 从插件市场安装并加载 `deepstack` | 部分通过 | 本地路径对客户端不可见；GitHub 分支页面 URL 不被接受；只验证了默认分支安装，当前 PR 分支路由未验证 |
-| MiniMax Code | 3.1.17 | 在独立新任务中加载 DeepStack，执行高风险只读路由探针 | 部分通过 | 本机实际加载的 `SKILL.md` 为旧缓存（50 行，未包含模型策略段）；路由为 `feature`，降级为 persona 顺序审查，并输出当前会话模型；未满足 `L2 + SAME_MODEL_REVIEW + 未确认` |
+| MiniMax Code | 3.1.17 | 在独立新任务中加载 DeepStack，执行高风险只读路由探针 | 通过（模型策略） | 首次探针命中旧缓存；卸载后重新导入 PR 分支 `0.2.1`，返回 `L2 + SAME_MODEL_REVIEW + 未确认`。其他并行、质量门和跨重启能力仍未确认 |
 
 ## 原生 Goal 与会话恢复专项核验
 
@@ -30,8 +30,8 @@
 - “通过”只表示该宿主表面完成了表中指定的验证，不表示宿主支持全部内部技能、并行代理或质量门能力。
 - ZCode 的分支限制和 MiniMax Code 的多项目边界已经写入 README；后续宿主版本变化后应重新验证。
 - 会话恢复探针使用临时目录和只读工具，没有修改 DeepStack 仓库；Claude/Codex/Pi 的标记往返证明的是会话恢复，不证明宿主有独立 Goal 调度器。
-- MiniMax Code 的 Goal 控件来自当前已有任务；没有暂停、删除或重启该用户任务，因此跨重启恢复仍保持未验证。其本轮路由探针还暴露出插件缓存问题：本机加载的是旧版 50 行 `SKILL.md`，需要以版本 `0.2.1` 重新导入后才能复测当前契约。
+- MiniMax Code 的 Goal 控件来自当前已有任务；没有暂停、删除或重启该用户任务，因此跨重启恢复仍保持未验证。首次路由探针暴露出插件缓存问题；卸载旧副本并重新导入版本 `0.2.1` 后，当前模型策略契约已通过。
 
 ## 模型策略跨宿主探针
 
-2026-11-23 使用同一条生产认证字段迁移输入做单模型路由检查：Claude Code 已加载 DeepStack，输出 `L2 + SAME_MODEL_REVIEW`；Codex CLI 刷新 `deepstack@deepstack` 后使用 `$deepstack`，重复探针均输出 `L2 + SAME_MODEL_REVIEW` 与 `可用模型：未确认`，其中一次明确运行了确定性预检脚本，另一次没有暴露该工具调用，因此只确认路由契约，不把脚本调用本身写成宿主保证；Pi Agent 加载当前路由器并允许只读工具后，运行确定性预检并输出完整的五字段契约，同样得到 `L2 + SAME_MODEL_REVIEW` 与 `可用模型：未确认`。ZCode 成功加载插件但返回旧版 `tdd` 路由和宿主模型清单；MiniMax Code 返回 `feature` 路由、persona 顺序降级和当前会话模型。后两者均保持 `ROUTER_UNVERIFIED`，机器可读记录见 [model-policy.json](../evals/model-policy.json)。
+2026-11-23 使用同一条生产认证字段迁移输入做单模型路由检查：Claude Code 已加载 DeepStack，输出 `L2 + SAME_MODEL_REVIEW`；Codex CLI 刷新 `deepstack@deepstack` 后使用 `$deepstack`，重复探针均输出 `L2 + SAME_MODEL_REVIEW` 与 `可用模型：未确认`，其中一次明确运行了确定性预检脚本，另一次没有暴露该工具调用，因此只确认路由契约，不把脚本调用本身写成宿主保证；Pi Agent 加载当前路由器并允许只读工具后，运行确定性预检并输出完整的五字段契约，同样得到 `L2 + SAME_MODEL_REVIEW` 与 `可用模型：未确认`。ZCode 仍使用旧默认源，返回旧版 `tdd` 路由和宿主模型清单；MiniMax Code 在清除旧缓存并重新导入 `0.2.1` 后返回 `feature` 路由，但模型策略字段符合 `L2 + SAME_MODEL_REVIEW + 未确认`。机器可读记录见 [model-policy.json](../evals/model-policy.json)。
