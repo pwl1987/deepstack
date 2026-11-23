@@ -114,6 +114,9 @@ for (const dir of skillDirs) {
 }
 
 if (!fs.existsSync(skillsRoot)) errors.push("skills/: missing directory");
+if (!fs.existsSync(path.join(root, "scripts", "model-policy.mjs"))) {
+  errors.push("scripts/model-policy.mjs: missing deterministic model policy preflight");
+}
 
 const routeCases = readJsonFile("evals/router-cases.json");
 const allowedRoutes = new Set(["investigation", "pickup", "delivery", "goal", "bug-fix", "refactor", "feature"]);
