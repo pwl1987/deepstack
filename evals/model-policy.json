@@ -33,7 +33,7 @@
     "cases": [
       {"host": "claude-code", "status": "PASS", "evidence": "Router loaded; single-model L0/L1/L2 probe passed."},
       {"host": "codex-cli", "status": "PASS", "evidence": "After refreshing deepstack@deepstack, repeated $deepstack probes returned the required L2 + SAME_MODEL_REVIEW fields with available models 未确认. One probe visibly ran scripts/model-policy.mjs; another preserved the contract without exposing that tool call, so script invocation itself is not claimed as a host guarantee."},
-      {"host": "pi-agent", "status": "ROUTER_UNVERIFIED", "evidence": "Explicit skill invocation did not produce the DeepStack L2/SAME_MODEL_REVIEW contract; model output supplied its own model names."}
+      {"host": "pi-agent", "status": "ROUTER_UNVERIFIED", "evidence": "Pi ran scripts/model-policy.mjs and obtained L2 + SAME_MODEL_REVIEW, but its final response used custom field names (主流程/升级触发/本轮降级) instead of the required five-field DeepStack contract."}
     ]
   }
 }
