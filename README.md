@@ -85,7 +85,13 @@ $deepstack 修复导出丢失最后一行的问题，先复现并给出测试证
 
 ### ZCode
 
-在插件市场添加本仓库并安装 `deepstack`。本仓库保留 `.zcode-plugin/` 清单；如果客户端无法访问本地路径，可使用公开 GitHub 仓库的默认分支。当前 ZCode 客户端不接受 GitHub 分支页面 URL 作为 marketplace 地址，因此 PR 分支需要先合并或通过客户端支持的归档/本地方式提供。安装成功后应在插件卡片或会话中看到 `deepstack`。当前默认源仍可能显示缓存的 `0.1.0`；升级后先确认插件卡片版本已经变为 `0.2.1`，如果仍显示旧版本，停用并重新安装，不能用旧缓存的探针结果证明当前路由器已生效。
+在插件市场添加本仓库并安装 `deepstack`。本仓库保留 `.zcode-plugin/` 清单；ZCode 可用带分支片段的 Git URL 导入当前 PR，例如：
+
+```text
+https://github.com/pwl1987/deepstack.git#improve/single-entry-routing-quality-gates
+```
+
+安装成功后应在插件卡片或会话中看到 `deepstack`。当前默认源仍可能显示缓存的 `0.1.0`；升级后先确认插件卡片版本已经变为 `0.2.1`，如果仍显示旧版本，停用并重新安装，不能用旧缓存的探针结果证明当前路由器已生效。首次在 ZCode 中验证时应使用临时或可恢复工作区；只读探针一旦出现文件变更，立即停止并恢复变更。
 
 ### MiniMax Code
 
