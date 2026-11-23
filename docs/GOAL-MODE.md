@@ -9,7 +9,7 @@
 | 宿主 | 原生入口 | 跨会话恢复证据 |
 |---|---|---|
 | MiniMax Code | 对话中的 Goal 控件 | 未验证 |
-| ZCode | 对话命令 `/goal` | 未验证 |
+| ZCode | 对话命令 `/goal` | 任务内持久化已确认；跨会话未验证 |
 | Claude Code | `plan` 权限模式和可恢复会话 | 已验证 |
 | Codex CLI | 持久线程和 `exec resume` | 已验证 |
 | Pi Agent | 会话文件、`--session` 和 `--resume` | 已验证 |
