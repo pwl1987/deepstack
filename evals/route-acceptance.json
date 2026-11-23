@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "evidenceSchema": 2,
+  "policy": "Adjudicate host routing output; fixture-sim never equals live LLM compliance.",
+  "primaryHost": "zcode",
+  "primaryHostNote": "Live opt-in via DEEPSTACK_HOST_ACCEPTANCE JSON; offline CI uses fixture-sim only.",
+  "defaultLimitations": [
+    "fixture-sim is deterministic text, not an LLM host",
+    "imported evidence is self-reported and cannot set countsAsLiveVerified",
+    "adjudicator checks field contract and curated expectations, not semantic understanding",
+    "readonly-guard and quality-gate must be attached separately for full E2E host probes"
+  ],
+  "hosts": {
+    "fixture-sim": {
+      "admission": "fixture",
+      "live": false,
+      "description": "In-repo sim-host for harness regression"
+    },
+    "zcode": {
+      "admission": "experimental",
+      "live": true,
+      "description": "Primary target for manual/opt-in live capture; unverified in CI"
+    },
+    "claude-code": {
+      "admission": "experimental",
+      "live": true
+    },
+    "codex-cli": {
+      "admission": "experimental",
+      "live": true
+    },
+    "pi-agent": {
+      "admission": "experimental",
+      "live": true
+    },
+    "minimax-code": {
+      "admission": "experimental",
+      "live": true
+    },
+    "cursor-agent": {
+      "admission": "unknown",
+      "live": false,
+      "description": "Cloud agent sandbox has no DeepStack host CLI in this milestone"
+    }
+  }
+}

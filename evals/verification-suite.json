@@ -61,6 +61,50 @@
           ["validate"]
         ]
       }
+    ],
+    "hostAcceptance": [
+      {
+        "id": "ha-all-routes-success",
+        "allCases": true,
+        "variant": "success",
+        "expectAdjudication": "PASS"
+      },
+      {
+        "id": "ha-wrong-route",
+        "caseId": "read-only-explanation",
+        "variant": "wrong-route",
+        "expectAdjudication": "FAIL"
+      },
+      {
+        "id": "ha-malformed",
+        "caseId": "read-only-explanation",
+        "variant": "malformed",
+        "expectAdjudication": "MALFORMED"
+      },
+      {
+        "id": "ha-forged-json",
+        "caseId": "read-only-explanation",
+        "variant": "forged-json",
+        "expectAdjudication": "MALFORMED"
+      },
+      {
+        "id": "ha-probe-priority",
+        "caseId": "routing-probe-wrapper-wins",
+        "variant": "success",
+        "expectAdjudication": "PASS"
+      },
+      {
+        "id": "ha-timeout",
+        "caseId": "read-only-explanation",
+        "variant": "hang",
+        "timeoutMs": 400,
+        "expectAdjudication": "TIMEOUT"
+      },
+      {
+        "id": "ha-import-rejects-live-flag",
+        "fixtureEvidence": "fixtures/host-acceptance/import-forged-live.json",
+        "expectImportStatus": "REJECTED"
+      }
     ]
   }
 }

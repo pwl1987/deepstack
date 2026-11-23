@@ -79,6 +79,8 @@ user-invocable: true
 - 不得用 `architect`、`low`、`medium`、`high` 或宿主自己的策略名替代 `L0/L1/L2`。
 - 禁止把字段名改写为 `主流程`、`升级触发`、`本轮降级` 或其他同义词；必须逐字使用上面的五个字段名。
 
+离线验收使用 `scripts/route-adjudicate.mjs` / `scripts/host-acceptance.mjs` 判定上述五字段是否符合契约与用例期望；**判定器不替模型选路由**。fixture 宿主输出不等于真实 LLM 遵从，详见 `../../docs/HOST-ACCEPTANCE.md`。
+
 开始执行前再补充不超过五行说明：
 
 ```text

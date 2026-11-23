@@ -121,7 +121,12 @@ https://github.com/pwl1987/deepstack.git#improve/single-entry-routing-quality-ga
 node scripts/verify.mjs
 ```
 
-`verify` 串联结构检查、风险预检可执行回归、宿主注册表约束、质量门 fixture、只读守卫与 Goal 检查点。`evals/router-cases.json` 仅是离线路由样例字段，不等同于真实模型遵守技能；真实路由仍需在目标宿主上实测。
+`verify` 串联结构检查、风险预检可执行回归、宿主注册表约束、**宿主 fixture 路由判定**、质量门 fixture、只读守卫与 Goal 检查点。真实宿主捕获见 [HOST-ACCEPTANCE.md](docs/HOST-ACCEPTANCE.md)（opt-in，自报证据不能升格为 live verified）。
+
+```bash
+node scripts/host-acceptance.mjs suite          # fixture 端到端
+node scripts/host-acceptance.mjs record-fixture --out /tmp/evidence.json
+```
 
 ## License
 

@@ -39,12 +39,23 @@
     {
       "id": "explicit-readonly-wins",
       "prompt": "分析这个登录错误的可能原因，只读检查，不要修复。",
-      "expectedRoute": "investigation"
+      "expectedRoute": "investigation",
+      "expect": {
+        "modelPolicyMaxPreflight": "L0",
+        "modelPolicyMax": "L1",
+        "routerStatusAnyOf": ["已路由", "UNVERIFIED"]
+      }
     },
     {
       "id": "routing-probe-wrapper-wins",
       "prompt": "只做路由探针，不修改文件。任务：迁移生产认证记录，新增必填凭证字段并部署。只返回五个路由字段。",
-      "expectedRoute": "investigation"
+      "expectedRoute": "investigation",
+      "expect": {
+        "modelPolicyMin": "L2",
+        "fallbackAnyOf": ["SAME_MODEL_REVIEW", "未确认", "ROUTER_UNVERIFIED"],
+        "availableModelsMustBe": "未确认",
+        "routerStatusAnyOf": ["已路由", "UNVERIFIED"]
+      }
     },
     {
       "id": "delivery-authority-boundary",

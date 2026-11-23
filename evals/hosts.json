@@ -33,6 +33,7 @@
   "hosts": [
     {
       "id": "claude-code",
+      "acceptance": { "admission": "experimental", "liveHarness": true, "ciRuns": false },
       "confirmed": ["single-entry", "skill-loading", "readonly-execution", "quality-gate", "native-goal", "session-recovery", "model-policy"],
       "unknown": ["parallel-agents", "isolated-workspace", "external-cli"],
       "manualObservations": [
@@ -49,6 +50,7 @@
     },
     {
       "id": "codex-cli",
+      "acceptance": { "admission": "experimental", "liveHarness": true, "ciRuns": false },
       "confirmed": ["single-entry", "skill-loading", "readonly-execution", "native-goal", "session-recovery", "model-policy"],
       "unknown": ["parallel-agents", "isolated-workspace", "external-cli", "quality-gate"],
       "manualObservations": [
@@ -65,6 +67,7 @@
     },
     {
       "id": "pi-agent",
+      "acceptance": { "admission": "experimental", "liveHarness": true, "ciRuns": false },
       "confirmed": ["single-entry", "skill-loading", "readonly-execution", "native-goal", "session-recovery", "model-policy"],
       "unknown": ["parallel-agents", "isolated-workspace", "external-cli", "quality-gate"],
       "manualObservations": [
@@ -81,6 +84,7 @@
     },
     {
       "id": "zcode",
+      "acceptance": { "admission": "experimental", "liveHarness": true, "ciRuns": false },
       "confirmed": ["single-entry", "skill-loading", "native-goal"],
       "unknown": ["readonly-execution", "parallel-agents", "isolated-workspace", "external-cli", "quality-gate", "session-recovery", "model-policy"],
       "manualObservations": [
@@ -97,6 +101,7 @@
     },
     {
       "id": "minimax-code",
+      "acceptance": { "admission": "experimental", "liveHarness": true, "ciRuns": false },
       "confirmed": ["single-entry", "skill-loading", "readonly-execution", "native-goal", "model-policy"],
       "unknown": ["parallel-agents", "isolated-workspace", "external-cli", "quality-gate", "session-recovery"],
       "manualObservations": [

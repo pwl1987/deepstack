@@ -15,8 +15,11 @@ node scripts/verify.mjs
 3. `evals/verification-suite.json` — 质量门安全执行 fixture
 4. `scripts/readonly-guard.mjs` — 一次性 git 仓库快照/复核
 5. `scripts/goal-state.mjs` — 回退检查点 init/validate 与 blocked 拒绝
+6. `scripts/host-acceptance.mjs` — fixture 宿主路由判定 + live 探针（未配置为 BLOCKED，非失败）
 
 输出为 JSON 摘要：`ran` / `passed` / `failed` / `limitations` / 每项 `results`。
+
+宿主判定细节见 [HOST-ACCEPTANCE.md](./HOST-ACCEPTANCE.md)。
 
 GitHub Actions 工作流 `validate` 调用同一命令。
 

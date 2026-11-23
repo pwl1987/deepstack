@@ -113,8 +113,41 @@ function runHostsNegativeChecks() {
 const pluginPlan = runNode("scripts/quality-gate.mjs", ["plan", root]);
 record("quality-gate:plan-self", pluginPlan.status === 0, "deepstack repo plan");
 
+function runHostAcceptanceSuite() {
+  const suite = runNode("scripts/host-acceptance.mjs", ["suite"]);
+  let payload;
+  try {
+    payload = JSON.parse(suite.stdout);
+  } catch (error) {
+    record("host-acceptance:fixture-suite", false, `invalid json: ${error.message}`);
+    return;
+  }
+  record("host-acceptance:fixture-suite", payload.ok === true, `${payload.passed}/${payload.ran} fixture adjudication`);
+  for (const item of payload.results || []) {
+    record(`host-acceptance:${item.id}`, item.ok, `${item.status}${item.expect ? ` want ${item.expect}` : ""}`);
+  }
+
+  const live = runNode("scripts/host-acceptance.mjs", ["probe-live"]);
+  let livePayload;
+  try {
+    livePayload = JSON.parse(live.stdout);
+  } catch (error) {
+    record("host-acceptance:live-probe", false, `invalid json: ${error.message}`);
+    return;
+  }
+  const liveOk = livePayload.status === "BLOCKED_NOT_CONFIGURED" || livePayload.ok === true;
+  record(
+    "host-acceptance:live-probe",
+    liveOk,
+    livePayload.status === "BLOCKED_NOT_CONFIGURED"
+      ? "live host not configured (expected in CI)"
+      : `live ${livePayload.status}`,
+  );
+}
+
 runCheckPlugin();
 runHostsNegativeChecks();
+runHostAcceptanceSuite();
 runQualityGateSuite();
 runReadonlyGuardSuite();
 runGoalStateSuite();
@@ -128,7 +161,8 @@ const summary = {
   passed,
   failed: results.length - passed,
   limitations: [
-    "Does not execute LLM routing on real hosts",
+    "Does not execute LLM routing on real hosts (fixture-sim only unless DEEPSTACK_HOST_ACCEPTANCE is set)",
+    "Imported host evidence cannot elevate to live verified",
     "Does not install dependencies or call paid APIs",
     "readonly-guard detects repo deltas; it is not a host sandbox",
     "quality-gate run trusts manifest allow-list and package.json scripts only",

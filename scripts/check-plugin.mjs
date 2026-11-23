@@ -280,6 +280,17 @@ if (!goalState || goalState.version !== 1 || goalState.file !== ".deepstack/goal
 
 if (!fs.existsSync(path.join(root, "scripts", "verify.mjs"))) errors.push("scripts/verify.mjs: missing unified offline verify entry");
 if (!fs.existsSync(path.join(root, "evals", "verification-suite.json"))) errors.push("evals/verification-suite.json: missing behavioral verification suite");
+for (const file of ["scripts/host-acceptance.mjs", "scripts/route-adjudicate.mjs", "lib/route-contract.mjs", "evals/route-acceptance.json"]) {
+  if (!fs.existsSync(path.join(root, file))) errors.push(`${file}: missing host acceptance contract`);
+}
+const routeAcceptance = readJsonFile("evals/route-acceptance.json");
+if (!routeAcceptance || routeAcceptance.version !== 1 || routeAcceptance.evidenceSchema !== 2) {
+  errors.push("evals/route-acceptance.json: expected version 1 and evidenceSchema 2");
+}
+const verificationSuite = readJsonFile("evals/verification-suite.json");
+if (!verificationSuite?.suites?.hostAcceptance?.length) {
+  errors.push("evals/verification-suite.json: missing hostAcceptance suite");
+}
 
 const qualityGate = readJsonFile("evals/quality-gate.json");
 if (!qualityGate || qualityGate.version !== 1 || !Array.isArray(qualityGate.categories) || !Array.isArray(qualityGate.statuses) || qualityGate.execution !== "manifest-authorized-run" || qualityGate.policy !== "fixed-discovery-no-install-no-arbitrary-command") {
