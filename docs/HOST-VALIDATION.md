@@ -9,7 +9,7 @@
 | Claude Code | 2.1.330 | 使用插件目录运行只读自然语言任务，检查自动路由、范围和证据契约 | 通过 | 出现一次模型不可识别警告，但任务成功完成 |
 | Codex CLI | 0.166.0 CLI；exec 显示 0.170.0 | 在临时项目中加载 `skills/`，分别验证无源代码和有源代码的只读调查 | 通过 | 临时项目中的一次沙箱探测警告未导致写入 |
 | Pi Agent | 1.6.0 | 通过 `--skill` 加载 DeepStack，执行只读调查并返回代码行证据 | 通过 | 无测试入口时正确标记运行验证未完成 |
-| ZCode | 3.19.1 | 用带 `#分支` 的 Git URL 安装 `0.2.1`，分别在远程 Comet 项目和临时本地 Git 仓库执行高风险只读探针 | 部分通过（临时仓库） | 远程 Comet 项目探针产生 `.comet/config.yaml`、`AGENTS.md`、`CLAUDE.md` 三个删除变更，已停止并恢复；临时本地仓库保持 clean，并返回完整五字段，但路由器状态为 `UNVERIFIED` |
+| ZCode | 3.19.1 | 用带 `#分支` 的 Git URL 安装包含 `7ae2525` 的 `0.2.1`，分别在远程 Comet 项目和临时本地 Git 仓库执行高风险只读探针 | 部分通过（本地路由） | 远程 Comet 项目探针产生 `.comet/config.yaml`、`AGENTS.md`、`CLAUDE.md` 三个删除变更，已停止并恢复；修正探针优先级并刷新缓存后，临时本地仓库保持 clean，返回 `UNVERIFIED + investigation + L2 + SAME_MODEL_REVIEW + 未确认` |
 | MiniMax Code | 3.1.17 | 在独立新任务中加载 DeepStack，执行高风险只读路由探针 | 通过（模型策略） | 首次探针命中旧缓存；卸载后重新导入 PR 分支 `0.2.1`，返回 `L2 + SAME_MODEL_REVIEW + 未确认`。其他并行、质量门和跨重启能力仍未确认 |
 
 ## 原生 Goal 与会话恢复专项核验
@@ -34,4 +34,4 @@
 
 ## 模型策略跨宿主探针
 
-2026-11-23 使用同一条生产认证字段迁移输入做单模型路由检查：Claude Code 已加载 DeepStack，输出 `L2 + SAME_MODEL_REVIEW`；Codex CLI 刷新 `deepstack@deepstack` 后使用 `$deepstack`，重复探针均输出 `L2 + SAME_MODEL_REVIEW` 与 `可用模型：未确认`，其中一次明确运行了确定性预检脚本，另一次没有暴露该工具调用，因此只确认路由契约，不把脚本调用本身写成宿主保证；Pi Agent 加载当前路由器并允许只读工具后，运行确定性预检并输出完整的五字段契约，同样得到 `L2 + SAME_MODEL_REVIEW` 与 `可用模型：未确认`。MiniMax Code 在清除旧缓存并重新导入 `0.2.1` 后返回 `feature` 路由，但模型策略字段符合 `L2 + SAME_MODEL_REVIEW + 未确认`。ZCode 在远程 Comet 项目中触发文件删除并被停止；随后在临时本地 Git 仓库中保持 clean 并返回完整五字段，但状态为 `UNVERIFIED`，所以只记为本地只读执行部分通过，不升级为宿主全面通过。机器可读记录见 [model-policy.json](../evals/model-policy.json)。
+2026-11-23 使用同一条生产认证字段迁移输入做单模型路由检查：Claude Code 已加载 DeepStack，输出 `L2 + SAME_MODEL_REVIEW`；Codex CLI 刷新 `deepstack@deepstack` 后使用 `$deepstack`，重复探针均输出 `L2 + SAME_MODEL_REVIEW` 与 `可用模型：未确认`，其中一次明确运行了确定性预检脚本，另一次没有暴露该工具调用，因此只确认路由契约，不把脚本调用本身写成宿主保证；Pi Agent 加载当前路由器并允许只读工具后，运行确定性预检并输出完整的五字段契约，同样得到 `L2 + SAME_MODEL_REVIEW` 与 `可用模型：未确认`。MiniMax Code 在清除旧缓存并重新导入 `0.2.1` 后返回 `feature` 路由，但模型策略字段符合 `L2 + SAME_MODEL_REVIEW + 未确认`。ZCode 先在旧缓存中暴露了探针封装优先级歧义；刷新包含 `7ae2525` 的 `0.2.1` 后，临时本地 Git 仓库保持 clean，并返回 `UNVERIFIED + investigation + L2 + SAME_MODEL_REVIEW + 未确认`。远程 Comet 项目仍触发过文件删除并已恢复，所以 ZCode 只记为本地路由部分通过，不升级为宿主全面通过。机器可读记录见 [model-policy.json](../evals/model-policy.json)。
