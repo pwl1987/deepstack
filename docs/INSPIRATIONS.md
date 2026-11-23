@@ -11,7 +11,7 @@ DeepStack 的实现借鉴了多个公开项目的工作流思想，但没有把�
 | [github/spec-kit](https://github.com/github/spec-kit) | 先定义目标、规格和验收证据 | 规格方法参考；不依赖其工具链 |
 | [anthropics/skills](https://github.com/anthropics/skills) | 技能目录、宿主边界和可组合技能的表达方式 | 技能规范参考；不声称兼容其全部宿主行为 |
 | [trailofbits/skills](https://github.com/trailofbits/skills) | 安全检查、证据和验证优先的工程习惯 | 验证方法参考；未复制其安全内容 |
-| BMAD、GSD、Ponytail、Comet | 任务分层、最小必要实现、阶段化推进等概念上的对比输入 | 当前没有可核验的代码级移植；不宣称已完整融合 |
+| BMAD、GSD、Ponytail、Comet | 任务分层、最小必要实现、阶段化推进等概念上的对比输入 | 当前没有可核验的代码级移植；Comet 仅作历史对比，不作为宿主支持面 |
 
 ## 许可证和归因
 

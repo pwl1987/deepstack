@@ -103,7 +103,7 @@ https://github.com/pwl1987/deepstack.git#improve/single-entry-routing-quality-ga
 
 安装成功后应在插件卡片或会话中看到 `deepstack`。当前默认源仍可能显示缓存的 `0.1.0`；升级后先确认插件卡片版本已经变为 `0.2.1`，如果仍显示旧版本，停用并重新安装，不能用旧缓存的探针结果证明当前路由器已生效。首次在 ZCode 中验证时应使用临时或可恢复工作区；只读探针一旦出现文件变更，立即停止并恢复变更。
 
-2026-11-23 本机验证结论：ZCode `3.19.1` 已加载当前 `0.2.1`，在临时本地 Git 仓库中可正常执行 `$deepstack` 路由；高风险只读探针返回 `investigation + L2 + SAME_MODEL_REVIEW`，工作区保持 clean。远程 Comet 项目曾出现宿主钩子删除文件，因此远程项目仍需先做隔离验证，不能把本机路由通过当作远程写入安全。
+2026-11-23 本机验证结论：ZCode `3.19.1` 已加载当前 `0.2.1`，在临时本地 Git 仓库中可正常执行 `$deepstack` 路由；高风险只读探针返回 `investigation + L2 + SAME_MODEL_REVIEW`，工作区保持 clean。DeepStack 不依赖 Comet，Comet 插件不属于支持面；此前的 Comet 结果只保留为历史风险证据，不影响本机插件使用。
 
 ### MiniMax Code
 
