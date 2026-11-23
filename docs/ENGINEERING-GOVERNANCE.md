@@ -7,7 +7,7 @@
 - Git：`main-only` 和 `branch-pr` 两种**显式**项目工作流。没有配置时不猜测模式，也不自动授予写入。
 - 协作：同一 Git common-dir 内的协作式 Writer 锁；**不是跨主机分布式锁**，也不能代替服务端分支保护或用户授权。
 - 证据：提交前检查与推送前重核真实远端基线；精确 SHA、必需工作流的 GitHub Actions 验证。没有工作流列表、网络不可用或数据缺失时返回 `UNKNOWN`，不能当作 `PASS`。
-- 质量：保留 schema 1 的既有 `npm run` 清单；schema 2 以仓库内已跟踪 manifest 授权 argv 形式的 Python/Node 等检查命令。它是**可信项目命令执行器**，不是对不可信仓库的沙箱。
+- 质量：保留 schema 1 的既有 `npm run` 清单；schema 2 以仓库内**已提交且工作区内容与 HEAD 完全一致**的 manifest 授权 argv 形式的 Python/Node 等检查命令。它是**可信项目命令执行器**，不是对不可信仓库的沙箱。
 - 任务：DeepStack 的 Goal 与项目既有 CURRENT/TODO 不得并列为同一事实的第二份状态。项目已有权威任务入口时必须复用。
 
 ## 项目配置（示例，不自动向其他项目写入）
@@ -78,7 +78,7 @@ node scripts/quality-gate.mjs run /path/to/project --manifest /path/to/project/d
 node scripts/quality-gate.mjs run /path/to/project --manifest /path/to/project/deepstack-quality-gate.json --component web --category test
 ```
 
-执行器以 `spawnSync(executable, args, {shell:false})` 执行，拒绝相对工作目录越界、未跟踪/仓库外 manifest、动态覆盖和 shell wrapper。**manifest 是与源码同等可信的可执行配置**；它授权的脚本仍可能改变文件或访问资源。`readonly` 仅限制指定的类别，不是操作系统只读沙箱。缺少命令不构成测试通过。
+执行器以 `spawnSync(executable, args, {shell:false})` 执行，拒绝相对工作目录越界、仓库外或未提交 manifest、与 HEAD 不一致的 manifest、动态覆盖和 shell wrapper。**manifest 是与源码同等可信的可执行配置**；目前只允许执行 HEAD 已提交且未被本地改写的 manifest。如果需要新增或修改 manifest，应先在项目正常代码审查流程中提交它，再使用新的授权命令。它授权的脚本仍可能改变文件或访问资源。`readonly` 仅限制指定的类别，不是操作系统只读沙箱。缺少命令不构成测试通过。
 
 ## CI 验证与诚实完成条件
 

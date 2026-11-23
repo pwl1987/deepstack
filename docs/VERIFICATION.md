@@ -41,7 +41,7 @@ node scripts/quality-gate.mjs run <repo> --manifest <file> --mode <readonly|writ
 ```
 
 - **plan**：只发现命令，不执行。
-- **run**：仅当 manifest 的 `allow.<category>` 与 `package.json` scripts 一致且命令形状为 `npm run <script>` 时才执行。
+- **run**：schema 1 仅当 manifest 白名单与 `package.json` scripts 一致、命令形状为 `npm run <script>` 才执行；schema 2 要求 manifest 位于目标仓库并与 Git HEAD 中已提交的同一路径**字节完全一致**，再执行被授权的 `executable`/`args`/`cwd` 命令。
 - **readonly** 模式跳过 `readonlySkipCategories`（默认含 `format`）。
 - 状态：`PASS` / `FAIL` / `NOT_CONFIGURED` / `SKIPPED` / `TIMEOUT` / `REJECTED`。
 
@@ -80,3 +80,7 @@ node scripts/model-policy.mjs --independent-review absent "<L2 任务>"
 ## Project doctor / Agent hook 测试（第四批）
 
 `node scripts/verify.mjs` 额外执行 `tests/project-doctor.test.mjs` 与 `tests/agent-preflight.test.mjs`，覆盖真实 Git bare origin、混合技术栈探测、CURRENT 多声明冲突、工作区差异、无配置行为、子目录定位、无 Git 仓库和畸形宿主输入。`project-doctor` 与 Hook 仅做只读事实扫描，单元测试通过不代表实际宿主已经自动注册 Hook；宿主验收仍按 `HOST-ACCEPTANCE.md` 单独执行。
+
+## Manifest 授权来源完整性（第五批）
+
+`tests/manifest-provenance.test.mjs` 覆盖 HEAD 已提交的清单可执行、工作区篡改/已暂存替换/`git add -N` 未提交清单必须拒绝。相比仅用 `git ls-files` 检查路径，此门禁验证实际命令来源的**字节级提交完整性**。它不是操作系统沙箱；项目本身所声明的命令脚本仍是可信可执行代码。

@@ -138,10 +138,18 @@ function trackedManifest(repo, manifestFile) {
   const full = fs.realpathSync(manifestFile);
   if (!within(root, full)) return false;
   const relative = path.relative(root, full);
-  const tracked = spawnSync("git", ["ls-files", "--error-unmatch", "--", relative], {
-    cwd: root, encoding: "utf8", shell: false,
+  // An index entry (even `git add -N`) does not establish authorization.
+  // Only the exact committed policy bytes may authorize a spawned command.
+  const committed = spawnSync("git", ["show", `HEAD:${relative}`], {
+    cwd: root, encoding: null, shell: false, timeout: 15_000,
+    maxBuffer: 1024 * 1024,
   });
-  return tracked.status === 0;
+  if (committed.status !== 0) return false;
+  try {
+    const live = fs.readFileSync(full);
+    return live.length <= 1024 * 1024 && Buffer.isBuffer(committed.stdout) &&
+      live.equals(committed.stdout);
+  } catch { return false; }
 }
 function componentCommand(repo, manifest, options) {
   if (options.allowCommand) return { status: "REJECTED", reason: "dynamic-command-override-forbidden" };
@@ -176,7 +184,7 @@ function runComponent(repo, manifest, options) {
     return { schema: 2, command: "run", status: "REJECTED", reason: "invalid-mode-or-category" };
   }
   if (!trackedManifest(repo, path.resolve(options.manifest))) {
-    return { schema: 2, command: "run", status: "REJECTED", reason: "manifest-not-tracked-inside-repo" };
+    return { schema: 2, command: "run", status: "REJECTED", reason: "manifest-not-identical-to-committed-HEAD" };
   }
   if (mode === "readonly" && (manifest.readonlySkipCategories || ["format"]).includes(category)) {
     return { schema: 2, command: "run", category, status: "SKIPPED", reason: "readonly-skip" };
