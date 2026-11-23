@@ -57,4 +57,4 @@ DeepStack 不根据模型品牌、版本号或宣传名称判断能力。能力�
 
 2026-11-23 在 Claude Code 上使用单模型完成了路由契约探针：小范围只读解释命中 `L0`，跨 API/前端/测试的功能方案命中 `L1`，生产认证字段迁移命中 `L2` 并标记 `SAME_MODEL_REVIEW`。探针只验证路由输出，没有执行代码修改、质量门、独立审查或部署；机器可读结果见 [model-policy.json](../evals/model-policy.json)。
 
-同日的跨宿主探针确认 Claude Code、Codex CLI、Pi Agent 和重新导入 `0.2.1` 后的 MiniMax Code 返回 `L2 + SAME_MODEL_REVIEW + 未确认`；MiniMax 的主流程仍可为 `feature`，这不影响模型策略契约。ZCode 旧缓存曾暴露探针封装优先级歧义；刷新包含 `7ae2525` 的 `0.2.2` 后，临时本地 Git 仓库保持 clean，并返回完整五字段（`路由器状态：UNVERIFIED`、`路由：investigation`、`L2`、`SAME_MODEL_REVIEW`、`未确认`）。Comet 结果仅为历史集成风险记录，不再纳入支持判断。详见 [model-policy.json](../evals/model-policy.json)。
+同日的跨宿主探针确认 Claude Code、Codex CLI、Pi Agent 和重新加载本仓库 `0.2.2` 后的 MiniMax Code 都返回完整五字段（`investigation`、`L2`、`SAME_MODEL_REVIEW`、`未确认`）。ZCode 旧缓存曾暴露探针封装优先级歧义；刷新包含 `7ae2525` 的 `0.2.2` 后，临时本地 Git 仓库保持 clean，并返回完整五字段（`路由器状态：UNVERIFIED`、`路由：investigation`、`L2`、`SAME_MODEL_REVIEW`、`未确认`）。Comet 结果仅为历史集成风险记录，不再纳入支持判断。详见 [model-policy.json](../evals/model-policy.json)。
