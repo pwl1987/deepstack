@@ -49,7 +49,7 @@ DeepStack 不根据模型品牌、版本号或宣传名称判断能力。能力�
 
 模型名称只能作为记录，不能作为能力证据。真实测试、质量门和独立审查结果优先于模型自述。
 
-仓库内的 `scripts/model-policy.mjs` 提供确定性预检：从原始任务文字提取关键风险，至少给出 `L0/L1/L2` 和触发器，并对 `L2` 默认标记 `SAME_MODEL_REVIEW`。它只覆盖风险分级，不能替代宿主能力探测、独立审查或人工授权；模型判断低于脚本结果时必须采用脚本的更高等级。
+仓库内的 `scripts/model-policy.mjs` 只根据任务文字给出 `L0/L1/L2` 和触发器。它看不到宿主有几个模型，默认 `independentReview` 为 `unknown`；这时 `L2` 的 `fallback` 是 `未确认`，不能写成 `SAME_MODEL_REVIEW`，也不能写成已经有独立审查。调用方证明没有独立审查时，才传 `--independent-review absent` 或 `--single-model`，`L2` 才标 `SAME_MODEL_REVIEW`。证明已有独立审查时传 `--independent-review present`，`fallback` 为 `无`，`可用模型` 仍是 `未确认`。原有调用方式不变：位置参数和标准输入仍是任务原文。模型判断不得低于脚本给出的等级。否定只覆盖同一分句里、重新提出要求之前的那个动作；后一句里的生产、认证、部署或数据破坏仍然算数。
 
 如果宿主没有确认 `single-entry`、`skill-loading` 和 `model-policy`，自动升级状态必须标记为 `ROUTER_UNVERIFIED`。没有读取当前宿主模型注册表或得到真实模型探测结果时，`可用模型` 必须写 `未确认`。此时只能报告模型自身的建议，不能把它称为 DeepStack 的 `L0/L1/L2` 决策，也不能把模型列出的名称当成可用模型清单。
 

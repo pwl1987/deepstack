@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -224,6 +225,48 @@ if (!modelPolicy || modelPolicy.version !== 1 || !Array.isArray(modelPolicy.tier
           errors.push(`evals/model-policy.json: invalid crossHostProbe record for ${item.host || "<unknown>"}`);
         }
       }
+    }
+  }
+  const executableCases = modelPolicy.executableCases;
+  const requiredGroups = ["negated-write", "readonly", "design-token", "code-cleanup", "data-destruction", "session-resume", "production-restore", "negation-plus-risk", "high-risk", "engineering"];
+  if (!Array.isArray(executableCases) || !executableCases.length) {
+    errors.push("evals/model-policy.json: executableCases must run the preflight against real prompts");
+  } else {
+    const groups = new Set();
+    const seen = new Set();
+    for (const item of executableCases) {
+      if (!item.id || seen.has(item.id)) errors.push("evals/model-policy.json: executable case id missing or duplicated");
+      seen.add(item.id);
+      if (!item.prompt || !item.group || !item.expectedTier) errors.push(`evals/model-policy.json: ${item.id || "<unknown>"} needs prompt, group, and expectedTier`);
+      if (!modelPolicy.tiers.includes(item.expectedTier)) errors.push(`evals/model-policy.json: ${item.id} has invalid expectedTier`);
+      groups.add(item.group);
+      const result = spawnSync(process.execPath, [path.join(root, "scripts/model-policy.mjs"), ...(item.args || []), item.prompt], { encoding: "utf8" });
+      if (result.status !== 0) {
+        errors.push(`model-policy ${item.id}: exit ${result.status} ${(result.stderr || "").trim()}`);
+        continue;
+      }
+      let output;
+      try {
+        output = JSON.parse(result.stdout);
+      } catch (error) {
+        errors.push(`model-policy ${item.id}: invalid JSON (${error.message})`);
+        continue;
+      }
+      if (output.tier !== item.expectedTier) errors.push(`model-policy ${item.id}: tier ${output.tier} != ${item.expectedTier}`);
+      if (item.expectedFallback && output.fallback !== item.expectedFallback) errors.push(`model-policy ${item.id}: fallback ${output.fallback} != ${item.expectedFallback}`);
+      if (item.expectedIndependentReview && output.independentReview !== item.expectedIndependentReview) {
+        errors.push(`model-policy ${item.id}: independentReview ${output.independentReview} != ${item.expectedIndependentReview}`);
+      }
+      if (output.availableModels !== "未确认") errors.push(`model-policy ${item.id}: availableModels must stay 未确认`);
+      for (const trigger of item.requiredTriggers || []) {
+        if (!output.triggers?.includes(trigger)) errors.push(`model-policy ${item.id}: missing trigger ${trigger}`);
+      }
+      for (const trigger of item.forbiddenTriggers || []) {
+        if (output.triggers?.includes(trigger)) errors.push(`model-policy ${item.id}: forbidden trigger ${trigger}`);
+      }
+    }
+    for (const group of requiredGroups) {
+      if (!groups.has(group)) errors.push(`evals/model-policy.json: no executable case covers ${group}`);
     }
   }
 }
