@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "read-only-explanation",
+      "prompt": "解释这个缓存为什么会在退出登录后保留，不要修改任何代码。",
+      "expectedRoute": "investigation"
+    },
+    {
+      "id": "resume-existing-work",
+      "prompt": "继续上次未完成的迁移，先读取当前工作区和已有状态。",
+      "expectedRoute": "pickup"
+    },
+    {
+      "id": "prepare-delivery",
+      "prompt": "检查这个 PR 是否达到交付条件，先不要合并。",
+      "expectedRoute": "delivery"
+    },
+    {
+      "id": "long-running-goal",
+      "prompt": "用几个阶段完成这次迁移，持续记录检查点，明天可以从当前进度继续。",
+      "expectedRoute": "goal"
+    },
+    {
+      "id": "regression-fix",
+      "prompt": "修复重试后产生两条通知的回归，先复现并给出回归测试。",
+      "expectedRoute": "bug-fix"
+    },
+    {
+      "id": "behavior-preserving-cleanup",
+      "prompt": "在不改变行为的前提下删除这个模块的重复分支和旧接口。",
+      "expectedRoute": "refactor"
+    },
+    {
+      "id": "new-behavior",
+      "prompt": "增加一个支持批量导出的功能，并说明完成标准。",
+      "expectedRoute": "feature"
+    },
+    {
+      "id": "explicit-readonly-wins",
+      "prompt": "分析这个登录错误的可能原因，只读检查，不要修复。",
+      "expectedRoute": "investigation",
+      "expect": {
+        "modelPolicyMaxPreflight": "L0",
+        "modelPolicyMax": "L1",
+        "routerStatusAnyOf": ["已路由", "UNVERIFIED"]
+      }
+    },
+    {
+      "id": "routing-probe-wrapper-wins",
+      "prompt": "只做路由探针，不修改文件。任务：迁移生产认证记录，新增必填凭证字段并部署。只返回五个路由字段。",
+      "expectedRoute": "investigation",
+      "expect": {
+        "modelPolicyMin": "L2",
+        "fallbackAnyOf": ["SAME_MODEL_REVIEW", "未确认", "ROUTER_UNVERIFIED"],
+        "availableModelsMustBe": "未确认",
+        "routerStatusAnyOf": ["已路由", "UNVERIFIED"]
+      }
+    },
+    {
+      "id": "delivery-authority-boundary",
+      "prompt": "准备发布说明和验证结果，但不要推送或发布。",
+      "expectedRoute": "delivery"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "file": ".deepstack/goal.md",
+  "required": ["schema", "status", "goal", "scope", "non_goals", "constraints", "acceptance", "current_phase", "evidence", "blockers", "next_step", "updated_at"],
+  "statuses": ["active", "blocked", "complete"],
+  "policy": "fallback-only-explicit"
+}

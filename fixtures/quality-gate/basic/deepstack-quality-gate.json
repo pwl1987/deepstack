@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "allow": {
+    "test": "npm run test:pass",
+    "format": "npm run format:write"
+  },
+  "readonlySkipCategories": ["format"]
+}

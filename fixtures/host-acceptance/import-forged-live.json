@@ -1,0 +1,13 @@
+{
+  "schema": 2,
+  "kind": "host-acceptance-evidence",
+  "source": "host-import",
+  "verificationTier": "import-self-reported",
+  "countsAsLiveVerified": true,
+  "selfReported": true,
+  "repoSha": "0000000000000000000000000000000000000000",
+  "pluginVersion": "0.2.4",
+  "caseSetDigest": "forged",
+  "host": { "id": "zcode", "admission": "experimental" },
+  "cases": []
+}

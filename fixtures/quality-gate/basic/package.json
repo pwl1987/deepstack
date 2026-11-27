@@ -1,0 +1,11 @@
+{
+  "name": "deepstack-qg-fixture-basic",
+  "private": true,
+  "scripts": {
+    "test:pass": "node scripts/pass.js",
+    "test:fail": "node scripts/fail.js",
+    "test:slow": "node scripts/slow.js",
+    "danger:write": "node scripts/write-marker.js",
+    "format:write": "node scripts/write-marker.js"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "allow": {
+    "test": "npm run test:pass"
+  },
+  "readonlySkipCategories": ["format"]
+}

@@ -1,6 +1,7 @@
 ---
 name: deep-fix
 description: Root-cause bug fixing workflow. Use for crashes, errors, unexpected behavior, or regressions — before patching symptoms. Enforces reproduce-first, 5-whys root cause isolation, blast-radius sweep, and a regression test that pins the cause.
+user-invocable: false
 ---
 
 # deep-fix 根因修复

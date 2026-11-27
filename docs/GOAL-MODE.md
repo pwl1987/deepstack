@@ -1,0 +1,49 @@
+# 目标模式
+
+目标模式用于需要多个阶段、长时间推进或跨会话恢复的工程任务。它由 `/deepstack` 自动判断，不需要用户记住额外命令。
+
+目标模式优先调用宿主原生的 Goal、任务、计划或会话恢复能力，不重新实现一个平行的长任务系统。只有宿主没有可用的原生持久化能力、且用户明确要求跨会话恢复时，才使用一个小型回退文件：`.deepstack/goal.md`。文件由 `scripts/goal-state.mjs` 以严格 frontmatter 维护，记录目标、范围、非目标、完成标准、约束、当前阶段、已完成证据、阻塞项和下一步；没有明确的长期目标时不创建它。
+
+当前已确认的宿主适配面：
+
+| 宿主 | 原生入口 | 跨会话恢复证据 |
+|---|---|---|
+| MiniMax Code | 对话中的 Goal 控件 | 未验证 |
+| ZCode | 对话命令 `/goal` | 任务内持久化已确认；跨会话未验证 |
+| Claude Code | `plan` 权限模式和可恢复会话 | 已验证 |
+| Codex CLI | 持久线程和 `exec resume` | 已验证 |
+| Pi Agent | 会话文件、`--session` 和 `--resume` | 已验证 |
+
+这些入口的语义不同：MiniMax 和 ZCode 提供显式 Goal；其他三个已确认的是计划或可恢复会话。`goal-adapters.json` 另外记录 `recovery`：原生 Goal 入口只能证明当前目标能力，不能自动证明跨会话恢复。DeepStack 只负责选择适配面和报告证据，不把它们伪装成同一种 API。
+
+机器可读的适配表见 [goal-adapters.json](../evals/goal-adapters.json)。宿主能力未确认时，适配器只能走 `pickup` 或回退检查点，不能假设原生 Goal 已可用。
+
+### 回退检查点协议
+
+只有用户明确要求跨会话恢复、且宿主原生持久化不可用时，才执行：
+
+```text
+node scripts/goal-state.mjs init <repo> \
+  --goal "完成一次可恢复的数据库迁移" \
+  --scope "当前仓库" \
+  --acceptance "迁移可回滚" \
+  --acceptance "测试通过"
+node scripts/goal-state.mjs validate <repo>
+node scripts/goal-state.mjs update <repo> --phase "2" --evidence "迁移脚本通过回滚检查" --next-step "运行受影响测试"
+```
+
+`validate` 是恢复前的硬门；`blocked` 必须有阻塞项，`complete` 必须有完成标准。脚本不启动后台进程、不安装依赖，也不执行任务文本中的任意命令。
+
+每次运行只推进一个可验证阶段。阶段完成、遇到阻塞或需要外部授权时更新检查点并停止。下一次运行先读取检查点、工作区、分支和差异，再继续剩余阶段。
+
+目标模式不承诺后台运行，也不绕过提交、推送、合并、发布或部署的授权边界。宿主无法提供原生持久化、且回退文件也不可用时，必须把检查点输出给用户并标记跨会话恢复为 `UNVERIFIED`。
+
+推荐输入：
+
+```text
+/deepstack
+目标：完成一次可恢复的数据库迁移
+范围：当前仓库
+完成标准：迁移可回滚、测试通过、给出发布前检查结果
+约束：先只读调查，分阶段推进，每阶段记录检查点
+```

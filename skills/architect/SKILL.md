@@ -1,6 +1,7 @@
 ---
 name: architect
 description: Design-before-code workflow. Use for new features, new modules, or decisions with more than one viable approach. Exhausts the design space, compares options with failure modes and second-order effects, records the decision.
+user-invocable: false
 ---
 
 # architect 先设计后动手

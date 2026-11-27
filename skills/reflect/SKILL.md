@@ -1,11 +1,12 @@
 ---
 name: reflect
 description: Post-task retrospective. Use after finishing a task, and especially after rework, rollback, or fixing the same class of problem a second time. Extracts the common root cause and encodes it into rules, automation, or skills — not advice.
+user-invocable: false
 ---
 
 # reflect 复盘沉淀
 
-触发:大任务完成(必做)/ 出现返工、回滚 / 同类问题第二次修。
+触发:大任务完成(建议)/ 出现返工、回滚 / 同类问题第二次修。
 
 ## 流程
 
@@ -16,7 +17,7 @@ description: Post-task retrospective. Use after finishing a task, and especially
    - 是一套可复用流程 → skill
    - 是环境事实 / 用户偏好 → memory
    原则:encode-lessons-in-structure——宁可加一条机器可执行的约束,不加一条靠人记的规矩。
-4. **落笔**:实际写入对应文件。产出"建议写入" = 未完成。
+4. **落笔**:在用户授权范围内写入对应文件；没有授权时输出最小补丁建议和待落盘内容，不自行修改项目、远程系统或持久记忆。
 
 ## 反模式
 

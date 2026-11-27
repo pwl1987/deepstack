@@ -1,6 +1,7 @@
 ---
 name: tdd
 description: Test-driven development loop. Use when implementing new behavior or bug fixes where a test can pin the contract. Red-green-refactor with an explicit evidence gate — no claiming done without pasted run output.
+user-invocable: false
 ---
 
 # tdd 红-绿-重构
