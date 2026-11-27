@@ -1,6 +1,6 @@
 # DeepStack 工程治理内核（Node.js）
 
-> 该模块从 TVNEWS 的 Python 工程流程中提取**可复用行为**，以原生 Node.js 实现；不包含 TVNEWS 的状态、业务契约、标签、原始脚本或私有记录。**TVNEWS 项目及其 Python 流程工具独立保留，DeepStack 不删除、不修改、不自动替换 TVNEWS。** 各项目仓库仍然是各自唯一事实源。
+> 该模块以原生 Node.js 实现可复用的工程治理门禁，不包含任何特定外部项目的状态、业务契约、标签、原始脚本或私有记录。**外部项目既有的流程工具与 Authority 独立保留，DeepStack 不删除、不修改、不自动替换。** 各项目仓库仍然是各自唯一事实源。
 
 ## 当前边界
 
@@ -94,7 +94,7 @@ node scripts/ci-evidence.mjs /path/to/project <完整40位实现提交SHA> --req
 
 ## Agent 项目冷启动（第四批：只读）
 
-`/deepstack` 的宿主 Agent 必须优先确认**目标仓库**及项目 Authority。DeepStack 新增只读 Node.js 入口，不复制 TVNEWS 任务、状态或规则，也不从 Issue 候选直接决定执行。
+`/deepstack` 的宿主 Agent 必须优先确认**目标仓库**及项目 Authority。DeepStack 新增只读 Node.js 入口，不复制外部项目任务、状态或规则，也不从 Issue 候选直接决定执行。
 
 ```bash
 # 在 DeepStack 安装目录运行；可以传目标 Git 仓库或其任意子目录
@@ -117,7 +117,7 @@ node /path/to/deepstack/scripts/agent-preflight.mjs
 
 ## 暂存区一致性与只读评审证据（第三批）
 
-TVNEWS 原有的 `precommit_gate.py` 有潜在的「已暂存 A、工作区变为 B，却对 B 执行检查后提交 A」风险。新增纯 Node.js 检查，不重新实现 Python 或 Node 技术栈的测试框架：
+传统的预提交检查常见「已暂存 A、工作区变为 B，却对 B 执行检查后提交 A」的风险。新增纯 Node.js 检查，不重新实现 Python 或 Node 技术栈的测试框架：
 
 ```bash
 # 在 DeepStack 安装目录运行，下方路径为目标项目
@@ -188,6 +188,6 @@ node scripts/issue-governance.mjs matrix /path/to/project --issue 123 --write
 
 其中 `issueIndex` 只描述如何读取已有原生 Issue，不得变成另一套人工维护的任务列表。`matrix` 只输出反例义务和 `UNVERIFIED`，不把文案匹配、测试文件存在或模型自述当作覆盖通过。
 
-## 尚未迁移
+## 尚未纳入核心的能力
 
-TVNEWS 的 GitHub Issue 专属父子关系适配、S1–S9 阶段推导、完整 Review Pack、质量记分和进度视图**尚未搬入此核心**。这些能力需要先剥离 TVNEWS 业务语义，再用 Node.js 实现。不要复制旧 Python 脚本，也不要将当前工程模块声称为完整的 TVNEWS 流程替换。TVNEWS 项目及其现有 Python 流程工具**长期保留**，不因 DeepStack 新增功能而要求删除或停用；未来若 TVNEWS 自愿接入，需要以独立授权和完整兼容性验证为前提。
+特定项目的 GitHub Issue 专属父子关系适配、自定义阶段推导、完整 Review Pack、质量记分和进度视图**尚未纳入此核心**。未来如要支持这些能力，需要先抽象通用语义再用 Node.js 实现，且不要求目标项目删除或停用既有流程工具；任何外部项目接入都必须以显式配置和独立验证为前提。

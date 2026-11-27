@@ -44,7 +44,7 @@ user-invocable: true
 
 ## 项目工程治理（按需调用）
 
-当宿主已安装完整 DeepStack 脚本且目标 Git 仓库明确时，先通过插件目录的 `node scripts/project-doctor.mjs <目标仓库>` 做只读 cold start，再按它返回的 Authority **路径**读取项目自身 AGENTS/STATUS/TODO/CURRENT。对多 CURRENT、未声明工作流、git 分叉/脏树/未知分支等停止自动写入；这一步不授予权限、不推导 Issue 候选为 CURRENT，也不建立新状态。可选 `agent-preflight.mjs` 只提供会话提示，不自动安装 Hook；脚本不可用时报告 `UNKNOWN/NOT_CONFIGURED`。TVNEWS 等外部项目的脚本与 Authority 保持原样，DeepStack 无权默认替换、删除或切换其流程。
+当宿主已安装完整 DeepStack 脚本且目标 Git 仓库明确时，先通过插件目录的 `node scripts/project-doctor.mjs <目标仓库>` 做只读 cold start，再按它返回的 Authority **路径**读取项目自身 AGENTS/STATUS/TODO/CURRENT。对多 CURRENT、未声明工作流、git 分叉/脏树/未知分支等停止自动写入；这一步不授予权限、不推导 Issue 候选为 CURRENT，也不建立新状态。可选 `agent-preflight.mjs` 只提供会话提示，不自动安装 Hook；脚本不可用时报告 `UNKNOWN/NOT_CONFIGURED`。外部项目既有的脚本与 Authority 保持原样，DeepStack 无权默认替换、删除或切换其流程。
 
 当目标项目存在并已提交 `deepstack.config.json` 时，在进入授权写入前，优先通过 DeepStack 安装目录的 `scripts/scm-workflow.mjs check` 读取项目 Git 工作流。明确 `main-only` 的项目不得创建/使用任务分支；若需要自动写入，应先使用同机 Writer 租约并通过 `preflight`，推送前再执行 `push-check`。`branch-pr` 项目按其既有集成规则执行。项目没有配置时，不推断为 main-only，不擅自改分支。
 
