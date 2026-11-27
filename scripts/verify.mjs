@@ -58,42 +58,51 @@ function runQualityGateSuite() {
 function runReadonlyGuardSuite() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "deepstack-rg-"));
   const baseline = path.join(os.tmpdir(), `deepstack-rg-baseline-${Date.now()}.json`);
-  fs.writeFileSync(path.join(dir, "README.md"), "seed\n");
-  spawnSync("git", ["init"], { cwd: dir });
-  spawnSync("git", ["add", "README.md"], { cwd: dir });
-  spawnSync("git", ["-c", "user.email=verify@local", "-c", "user.name=verify", "commit", "-m", "init"], { cwd: dir });
-  const snap = runNode("scripts/readonly-guard.mjs", ["snapshot", dir, baseline]);
-  record("readonly-guard:snapshot", snap.status === 0, snap.stderr || snap.stdout);
-  const clean = runNode("scripts/readonly-guard.mjs", ["verify", dir, baseline]);
-  record("readonly-guard:clean", clean.status === 0, clean.stderr || clean.stdout);
-  fs.appendFileSync(path.join(dir, "README.md"), "mutated\n");
-  const dirty = runNode("scripts/readonly-guard.mjs", ["verify", dir, baseline]);
-  record("readonly-guard:dirty", dirty.status === 2, `exit ${dirty.status}`);
+  try {
+    fs.writeFileSync(path.join(dir, "README.md"), "seed\n");
+    spawnSync("git", ["init"], { cwd: dir });
+    spawnSync("git", ["add", "README.md"], { cwd: dir });
+    spawnSync("git", ["-c", "user.email=verify@local", "-c", "user.name=verify", "commit", "-m", "init"], { cwd: dir });
+    const snap = runNode("scripts/readonly-guard.mjs", ["snapshot", dir, baseline]);
+    record("readonly-guard:snapshot", snap.status === 0, snap.stderr || snap.stdout);
+    const clean = runNode("scripts/readonly-guard.mjs", ["verify", dir, baseline]);
+    record("readonly-guard:clean", clean.status === 0, clean.stderr || clean.stdout);
+    fs.appendFileSync(path.join(dir, "README.md"), "mutated\n");
+    const dirty = runNode("scripts/readonly-guard.mjs", ["verify", dir, baseline]);
+    record("readonly-guard:dirty", dirty.status === 2, `exit ${dirty.status}`);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+    fs.rmSync(baseline, { force: true });
+  }
 }
 
 function runGoalStateSuite() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "deepstack-goal-"));
-  const init = runNode("scripts/goal-state.mjs", [
-    "init",
-    dir,
-    "--force",
-    "--goal",
-    "offline verification milestone",
-    "--acceptance",
-    "verify suite passes",
-    "--phase",
-    "1",
-  ]);
-  record("goal-state:init", init.status === 0, init.stderr || init.stdout);
-  const validate = runNode("scripts/goal-state.mjs", ["validate", dir]);
-  record("goal-state:validate", validate.status === 0, validate.stderr || validate.stdout);
-  const blocked = runNode("scripts/goal-state.mjs", [
-    "update",
-    dir,
-    "--status",
-    "blocked",
-  ]);
-  record("goal-state:blocked-rejected", blocked.status !== 0, `exit ${blocked.status}`);
+  try {
+    const init = runNode("scripts/goal-state.mjs", [
+      "init",
+      dir,
+      "--force",
+      "--goal",
+      "offline verification milestone",
+      "--acceptance",
+      "verify suite passes",
+      "--phase",
+      "1",
+    ]);
+    record("goal-state:init", init.status === 0, init.stderr || init.stdout);
+    const validate = runNode("scripts/goal-state.mjs", ["validate", dir]);
+    record("goal-state:validate", validate.status === 0, validate.stderr || validate.stdout);
+    const blocked = runNode("scripts/goal-state.mjs", [
+      "update",
+      dir,
+      "--status",
+      "blocked",
+    ]);
+    record("goal-state:blocked-rejected", blocked.status !== 0, `exit ${blocked.status}`);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 }
 
 function runHostsNegativeChecks() {
@@ -146,7 +155,7 @@ function runHostAcceptanceSuite() {
 }
 
 function runScmAndMixedSuites() {
-  const child = spawnSync(process.execPath, ["--test", "tests/scm-workflow.test.mjs", "tests/quality-gate-mixed.test.mjs", "tests/ci-evidence.test.mjs", "tests/issue-governance.test.mjs", "tests/staged-check.test.mjs", "tests/review-evidence.test.mjs", "tests/project-doctor.test.mjs", "tests/agent-preflight.test.mjs", "tests/manifest-provenance.test.mjs"], {
+  const child = spawnSync(process.execPath, ["--test", "tests/scm-workflow.test.mjs", "tests/quality-gate-mixed.test.mjs", "tests/ci-evidence.test.mjs", "tests/issue-governance.test.mjs", "tests/staged-check.test.mjs", "tests/review-evidence.test.mjs", "tests/project-doctor.test.mjs", "tests/agent-preflight.test.mjs", "tests/manifest-provenance.test.mjs", "tests/host-acceptance.test.mjs"], {
     cwd: root, encoding: "utf8", timeout: 120_000, shell: false,
   });
   record("scm-and-mixed-stack", child.status === 0,

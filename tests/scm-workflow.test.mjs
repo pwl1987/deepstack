@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { inspectWorkflow, issuePreflight, verifyPreflight, checkPush } from '../lib/scm-workflow.mjs';
+import { inspectWorkflow, issuePreflight, verifyPreflight, checkPush, loadWorkflowConfig } from '../lib/scm-workflow.mjs';
 import { acquireWriter, verifyWriter, releaseWriter } from '../lib/writer-lease.mjs';
 
 function git(cwd, ...args) {
@@ -132,4 +132,44 @@ test('push check detects remote main changed after preflight', (t) => {
 test('main-only mode cannot silently accept a non-main base branch', (t) => {
   const { repo } = fixture(t);
   assert.equal(inspectWorkflow(repo, { workflow: 'main-only', baseBranch: 'develop' }).status, 'FAIL');
+});
+
+test('push check rejects expired preflight stamp', (t) => {
+  const { repo } = fixture(t);
+  const a = acquireWriter(repo, 'one-agent');
+  const opts = { writerToken: a.token };
+  assert.equal(issuePreflight(repo, main, opts).status, 'PASS');
+  const stampFile = path.join(repo, '.git', 'deepstack', 'preflight.json');
+  const payload = JSON.parse(fs.readFileSync(stampFile, 'utf8'));
+  payload.issuedAt = Date.now() - 120_000;
+  payload.expiresAt = Date.now() - 1_000;
+  fs.writeFileSync(stampFile, JSON.stringify(payload));
+  const res = checkPush(repo, main, opts);
+  assert.equal(res.status, 'FAIL');
+  assert.ok(res.reasons.includes('preflight-expired'), JSON.stringify(res));
+});
+
+test('subdirectory invocation loads workflow config and passes push-check without repository-mismatch', (t) => {
+  const { repo } = fixture(t);
+  fs.writeFileSync(path.join(repo, 'deepstack.config.json'), JSON.stringify({ git: main }));
+  const sub = path.join(repo, 'packages', 'app');
+  fs.mkdirSync(sub, { recursive: true });
+  fs.writeFileSync(path.join(sub, 'index.js'), 'console.log(1);\n');
+  git(repo, 'add', '.');
+  git(repo, 'commit', '-m', 'add config and sub');
+  git(repo, 'push', 'origin', 'main');
+
+  assert.deepEqual(loadWorkflowConfig(sub), main);
+  assert.equal(inspectWorkflow(sub, main).status, 'PASS');
+
+  const a = acquireWriter(sub, 'sub-agent');
+  assert.equal(a.status, 'PASS');
+  const opts = { writerToken: a.token };
+  assert.equal(issuePreflight(sub, main, opts).status, 'PASS');
+
+  fs.appendFileSync(path.join(sub, 'index.js'), 'console.log(2);\n');
+  git(repo, 'add', 'packages/app/index.js');
+  git(repo, 'commit', '-m', 'sub change');
+  const pushRes = checkPush(sub, main, opts);
+  assert.equal(pushRes.status, 'PASS', JSON.stringify(pushRes));
 });

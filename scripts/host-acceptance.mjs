@@ -25,16 +25,29 @@ function gitHeadSha() {
   return r.status === 0 ? r.stdout.trim() : "unknown";
 }
 
+function isWithin(baseDir, target) {
+  const rel = path.relative(baseDir, target);
+  return rel === "" || (rel !== ".." && !rel.startsWith(`..${path.sep}`) && !path.isAbsolute(rel));
+}
+
 function resolveSafePath(userPath) {
   if (!userPath) return null;
   const resolved = path.resolve(userPath);
-  const rel = path.relative(root, resolved);
-  if (rel.startsWith("..") || path.isAbsolute(rel)) {
-    if (!resolved.startsWith(os.tmpdir())) {
-      throw new Error(`path outside repo or tmp: ${userPath}`);
-    }
+  let ancestor = resolved;
+  while (!fs.existsSync(ancestor)) {
+    const parent = path.dirname(ancestor);
+    if (parent === ancestor) break;
+    ancestor = parent;
   }
-  return resolved;
+  if (!fs.existsSync(ancestor)) {
+    throw new Error(`path outside repo or tmp: ${userPath}`);
+  }
+  const realAncestor = fs.realpathSync(ancestor);
+  const candidateReal = path.join(realAncestor, path.relative(ancestor, resolved));
+  if (isWithin(fs.realpathSync(root), candidateReal) || isWithin(fs.realpathSync(os.tmpdir()), candidateReal)) {
+    return resolved;
+  }
+  throw new Error(`path outside repo or tmp: ${userPath}`);
 }
 
 function runArgv(argv, options = {}) {
@@ -214,7 +227,8 @@ async function runLiveProbe() {
   return {
     ok: run.status === "OK",
     status: run.status === "TIMEOUT" ? "TIMEOUT" : run.status === "OK" ? "EXECUTED" : "FAIL",
-    liveVerified: run.status === "OK",
+    liveVerified: false,
+    commandExecuted: run.status === "OK",
     started,
     finished,
     exitCode: run.exitCode,
@@ -241,8 +255,12 @@ function importEvidence(inputPath) {
   }
 
   const currentSha = gitHeadSha();
-  if (payload.repoSha && payload.repoSha !== "unknown" && payload.repoSha !== currentSha) {
-    return { ok: false, status: "REJECTED", reasons: ["stale repoSha; cannot treat as current PASS"] };
+  if (
+    typeof payload.repoSha !== "string" ||
+    !/^[0-9a-f]{40}$/.test(payload.repoSha) ||
+    payload.repoSha !== currentSha
+  ) {
+    return { ok: false, status: "REJECTED", reasons: ["missing or stale repoSha; cannot treat as current PASS"] };
   }
 
   if (payload.selfReported || payload.verificationTier === "import-self-reported") {
@@ -255,14 +273,23 @@ function importEvidence(inputPath) {
 
   const routerCases = readJson("evals/router-cases.json");
   const expectedDigest = caseSetDigest(routerCases);
-  if (payload.caseSetDigest && payload.caseSetDigest !== expectedDigest) {
-    return { ok: false, status: "REJECTED", reasons: ["caseSetDigest mismatch"] };
+  if (typeof payload.caseSetDigest !== "string" || payload.caseSetDigest !== expectedDigest) {
+    return { ok: false, status: "REJECTED", reasons: ["missing or mismatched caseSetDigest"] };
   }
 
   const caseResults = [];
   for (const entry of payload.cases || []) {
-    if (!entry.hostOutput && !entry.parsed) {
-      caseResults.push({ id: entry.id, status: "NOT_RUN", ok: false });
+    if (!entry.hostOutput) {
+      if (entry.parsed) {
+        caseResults.push({
+          id: entry.id,
+          status: "MALFORMED",
+          ok: false,
+          reasons: ["missing hostOutput; parsed-only import rejected"],
+        });
+      } else {
+        caseResults.push({ id: entry.id, status: "NOT_RUN", ok: false });
+      }
       continue;
     }
     const caseDef = routerCases.cases.find((c) => c.id === entry.id);
@@ -270,7 +297,7 @@ function importEvidence(inputPath) {
       caseResults.push({ id: entry.id, status: "REJECTED", ok: false });
       continue;
     }
-    const parsed = entry.parsed || parseRouteOutput(entry.hostOutput);
+    const parsed = parseRouteOutput(entry.hostOutput);
     const mp = entry.modelPolicy || modelPolicyForPrompt(caseDef.prompt);
     const adj = adjudicateCase(caseDef, parsed, { modelPolicySnapshot: mp });
     const stamped = {

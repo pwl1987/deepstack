@@ -134,10 +134,18 @@ function trackedManifest(repo, manifestFile) {
     cwd: repo, encoding: "utf8", shell: false,
   });
   if (gitRoot.status !== 0) return false;
-  const root = fs.realpathSync(gitRoot.stdout.trim());
-  const full = fs.realpathSync(manifestFile);
-  if (!within(root, full)) return false;
-  const relative = path.relative(root, full);
+  let root;
+  let repoReal;
+  let full;
+  try {
+    root = fs.realpathSync(gitRoot.stdout.trim());
+    repoReal = fs.realpathSync(repo);
+    full = fs.realpathSync(manifestFile);
+  } catch {
+    return false;
+  }
+  if (!within(root, full) || !within(repoReal, full)) return false;
+  const relative = path.relative(root, full).split(path.sep).join("/");
   // An index entry (even `git add -N`) does not establish authorization.
   // Only the exact committed policy bytes may authorize a spawned command.
   const committed = spawnSync("git", ["show", `HEAD:${relative}`], {
@@ -223,8 +231,14 @@ function runCategory(repoInput, options) {
   const category = options.category || "test";
   const timeoutMs = Number(options.timeoutMs || 30_000);
   if (!["readonly", "write-authorized"].includes(mode)) throw new Error(`invalid mode: ${mode}`);
+  if (!trackedManifest(repo, path.resolve(options.manifest))) {
+    const result = { schema: 1, action: "run", repo, mode, category, status: "REJECTED", command: null, reason: "manifest-not-identical-to-committed-HEAD" };
+    console.log(JSON.stringify(result));
+    process.exitCode = 1;
+    return result;
+  }
   if (mode === "readonly" && (manifest.readonlySkipCategories || []).includes(category)) {
-    const result = { schema: 1, command: "run", repo, mode, category, status: "SKIPPED", reason: "readonly-skip", command: null };
+    const result = { schema: 1, action: "run", repo, mode, category, status: "SKIPPED", reason: "readonly-skip", command: null };
     console.log(JSON.stringify(result));
     return result;
   }
@@ -233,21 +247,22 @@ function runCategory(repoInput, options) {
     const discovered = commandFor(repo, category);
     command = discovered.command;
     if (!command) {
-      const result = { schema: 1, command: "run", repo, mode, category, status: "NOT_CONFIGURED", command: null };
+      const result = { schema: 1, action: "run", repo, mode, category, status: "NOT_CONFIGURED", command: null };
       console.log(JSON.stringify(result));
       return result;
     }
   }
   const trust = trustCommand(repo, command, manifest, category);
   if (!trust.ok) {
-    const result = { schema: 1, command: "run", repo, mode, category, status: "REJECTED", command, reason: trust.reason };
+    const result = { schema: 1, action: "run", repo, mode, category, status: "REJECTED", command, reason: trust.reason };
     console.log(JSON.stringify(result));
+    process.exitCode = 1;
     return result;
   }
   const executed = execute(repo, command, timeoutMs);
   const result = {
     schema: 1,
-    command: "run",
+    action: "run",
     repo,
     mode,
     category,
@@ -259,6 +274,7 @@ function runCategory(repoInput, options) {
     stderrTail: executed.stderr.slice(-400),
   };
   console.log(JSON.stringify(result));
+  if (["FAIL", "TIMEOUT", "REJECTED"].includes(result.status)) process.exitCode = 1;
   return result;
 }
 
