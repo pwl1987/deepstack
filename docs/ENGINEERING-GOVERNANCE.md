@@ -29,22 +29,27 @@
 
 ## 写入准入与 Git 工作流
 
+当目标项目是外部仓库时，先将 `$DEEPSTACK_ROOT` 设为 DeepStack 插件根目录（优先级：`${CLAUDE_PLUGIN_ROOT}` → `${DEEPSTACK_ROOT}` → 插件包根目录）；以下示例均可通过 `node "$DEEPSTACK_ROOT/scripts/..."` 直接对目标项目运行：
+
 ```bash
-# 在 DeepStack 源/插件目录运行，下方路径换为目标项目仓库：
-node scripts/scm-workflow.mjs check /path/to/project
-node scripts/writer-lease.mjs acquire /path/to/project my-agent
+# 设置 DEEPSTACK_ROOT 指向 DeepStack 源/插件目录，下方路径换为目标项目仓库：
+node "$DEEPSTACK_ROOT/scripts/scm-workflow.mjs" check /path/to/project
+node "$DEEPSTACK_ROOT/scripts/writer-lease.mjs" status /path/to/project
+node "$DEEPSTACK_ROOT/scripts/writer-lease.mjs" acquire /path/to/project my-agent
 # acquire 返回一次性 token；安全地设置到当前会话环境，不提交或输出到仓库日志。
 export DEEPSTACK_WRITER_TOKEN='<acquire-token>'
-node scripts/scm-workflow.mjs preflight /path/to/project
+node "$DEEPSTACK_ROOT/scripts/scm-workflow.mjs" preflight /path/to/project
 # 按项目 Authority 完成授权的开发、测试、diff review 与 commit。
-node scripts/scm-workflow.mjs push-check /path/to/project
+node "$DEEPSTACK_ROOT/scripts/scm-workflow.mjs" push-check /path/to/project
 # 在远端未发生变化、拥有推送授权且验证通过的前提下，由调用方安全推送。
-node scripts/writer-lease.mjs release /path/to/project
+node "$DEEPSTACK_ROOT/scripts/writer-lease.mjs" release /path/to/project
+# 仅在确认原持有者进程已终止且需要人工恢复时，才可显式解锁：
+# node "$DEEPSTACK_ROOT/scripts/writer-lease.mjs" break /path/to/project --force --reason "confirmed dead agent"
 ```
 
 `check` 仅检查 Git 与真实远端，不签发写入权限。`preflight` 仅在干净、与远端同步且满足本地 Writer 规则时生成 `.git/deepstack/preflight.json`；失败不会生成有效凭证。`push-check` 允许本地 HEAD 在原基线上增量提交，但远端不得发生变化；禁止使用 force push、reset 或历史重写来消除失败。
 
-预检凭证是可复核的**本地缓存证据**，不是加密授权票据、操作系统隔离或网络分布式租约。跨机器写入必须另外使用已有的共享 Writer 控制、项目级权限和受保护的集成通道。锁遗留时**不自动抢锁**，须先独立确认持有者状态并人工恢复。
+预检凭证是可复核的**本地缓存证据**，不是加密授权票据、操作系统隔离或网络分布式租约。跨机器写入必须另外使用已有的共享 Writer 控制、项目级权限和受保护的集成通道。锁遗留时**不自动抢锁**，可通过 `writer-lease.mjs status`（只读、不输出 token）核对持锁 `owner`、`pid` 与存活状态，再经人工确认后使用 `writer-lease.mjs break --force --reason <text>` 显式恢复。
 
 ## 质量门：混合 Python + Node 项目
 

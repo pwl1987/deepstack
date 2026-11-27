@@ -15,19 +15,9 @@ function readJsonFile(relativePath) {
   }
 }
 
-function readJson(relativePath) {
-  const file = path.join(root, relativePath);
-  try {
-    return JSON.parse(fs.readFileSync(file, "utf8"));
-  } catch (error) {
-    errors.push(`${relativePath}: invalid or unreadable JSON (${error.message})`);
-    return null;
-  }
-}
-
 const manifests = ["plugin.json", ".claude-plugin/plugin.json", ".zcode-plugin/plugin.json"]
   .filter((file) => fs.existsSync(path.join(root, file)))
-  .map((file) => ({ file, value: readJson(file) }))
+  .map((file) => ({ file, value: readJsonFile(file) }))
   .filter(({ value }) => value);
 
 if (!manifests.length) errors.push("no plugin manifest found");
@@ -304,10 +294,9 @@ if (!qualityGate || qualityGate.version !== 1 || !Array.isArray(qualityGate.cate
   }
 }
 
-const goalAdaptersForHosts = readJsonFile("evals/goal-adapters.json");
-if (hostRegistry?.hosts && goalAdaptersForHosts?.adapters) {
+if (hostRegistry?.hosts && goalAdapters?.adapters) {
   const registryIds = new Set(hostRegistry.hosts.map((host) => host.id));
-  for (const adapter of goalAdaptersForHosts.adapters) {
+  for (const adapter of goalAdapters.adapters) {
     if (!registryIds.has(adapter.host)) errors.push(`evals/goal-adapters.json: ${adapter.host} missing from evals/hosts.json`);
     if (adapter.recovery === "verified") {
       const host = hostRegistry.hosts.find((item) => item.id === adapter.host);

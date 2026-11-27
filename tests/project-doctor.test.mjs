@@ -85,3 +85,26 @@ test('missing Git repo is reported without creating files', (t) => {
   assert.equal(r.status, 'UNKNOWN');
   assert.deepEqual(fs.readdirSync(dir), []);
 });
+test('pure ESM Node repository without package.json is detected as node', (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'deepstack-esm-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  git(dir, 'init', '-b', 'main');
+  git(dir, 'config', 'user.email', 'fixture@example.test');
+  git(dir, 'config', 'user.name', 'fixture');
+  fs.mkdirSync(path.join(dir, 'scripts'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'scripts', 'verify.mjs'), 'console.log(1);\n');
+  git(dir, 'add', '.');
+  git(dir, 'commit', '-m', 'esm seed');
+  assert.deepEqual(inspectProject(dir).technologies, ['node']);
+});
+test('repository without Node or Python markers reports empty technologies', (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'deepstack-plain-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  git(dir, 'init', '-b', 'main');
+  git(dir, 'config', 'user.email', 'fixture@example.test');
+  git(dir, 'config', 'user.name', 'fixture');
+  fs.writeFileSync(path.join(dir, 'README.md'), 'plain\n');
+  git(dir, 'add', '.');
+  git(dir, 'commit', '-m', 'plain');
+  assert.deepEqual(inspectProject(dir).technologies, []);
+});

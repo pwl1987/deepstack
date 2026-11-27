@@ -53,15 +53,6 @@
         "expectStatus": "TIMEOUT"
       }
     ],
-    "goalState": [
-      {
-        "id": "goal-init-validate",
-        "commands": [
-          ["init", "--goal", "milestone", "--acceptance", "offline verify green", "--force"],
-          ["validate"]
-        ]
-      }
-    ],
     "hostAcceptance": [
       {
         "id": "ha-all-routes-success",

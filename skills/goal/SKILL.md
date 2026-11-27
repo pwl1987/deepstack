@@ -28,7 +28,7 @@ user-invocable: false
 最后更新：
 ```
 
-显式回退时使用 `node scripts/goal-state.mjs init <repo> --goal ... --acceptance ...`；恢复前先用 `validate`，阶段完成用 `update`，需要查看当前状态用 `summary`。脚本只写用户明确指定的回退文件，不启动后台进程，也不执行任务文本中的任意命令。质量门先用 `node scripts/quality-gate.mjs plan <repo>` 发现项目既有入口；没有授权和真实执行证据时，结果必须保留为 `NOT_RUN`。
+显式回退时使用 `node "$DEEPSTACK_ROOT/scripts/goal-state.mjs" init <repo> --goal ... --acceptance ...`；恢复前先用 `validate`，阶段完成用 `update`，需要查看当前状态用 `summary`（`$DEEPSTACK_ROOT` 为 DeepStack 插件目录；脚本不可用时保持纯 Skill 模式并标为 `NOT_CONFIGURED` / `UNVERIFIED`）。脚本只写用户明确指定的回退文件，不启动后台进程，也不执行任务文本中的任意命令。质量门先用 `node "$DEEPSTACK_ROOT/scripts/quality-gate.mjs" plan <repo>` 发现项目既有入口；没有授权和真实执行证据时，结果必须保留为 `NOT_RUN`。
 
 如果当前宿主或工作区不适合持久化，先在回复中输出同样的检查点，并明确说明跨会话恢复需要用户再次提供该检查点。不能假装已经保存，也不能把回退文件描述成宿主原生 Goal。
 
