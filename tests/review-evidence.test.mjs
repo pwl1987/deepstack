@@ -30,3 +30,43 @@ test('checking some other category cannot satisfy required one', () => {
 test('local staged report can be omitted only by an explicit no-local-checks policy', () => {
   assert.equal(judgeReviewEvidence({ ...input, checks: [], policy: { ...required, requiredLocalChecks: [] } }).status, 'READY_FOR_HUMAN_REVIEW');
 });
+test('merge commit passes when requiredLocalChecks is empty and CI passes', () => {
+  const mergeRes = judgeReviewEvidence({
+    commitSha: commit,
+    parentSha: parent,
+    parentShas: [parent, 'd'.repeat(40)],
+    treeSha: tree,
+    policy: { ...required, requiredLocalChecks: [] },
+    ci,
+    checks: [],
+  });
+  assert.equal(mergeRes.status, 'READY_FOR_HUMAN_REVIEW');
+  assert.equal(mergeRes.isMergeCommit, true);
+  assert.equal(mergeRes.parentShas.length, 2);
+});
+test('merge commit is INCOMPLETE when requiredLocalChecks is non-empty', () => {
+  const mergeRes = judgeReviewEvidence({
+    commitSha: commit,
+    parentSha: parent,
+    parentShas: [parent, 'd'.repeat(40)],
+    treeSha: tree,
+    policy: required,
+    ci,
+    checks: [evidence],
+  });
+  assert.equal(mergeRes.status, 'INCOMPLETE');
+  assert.ok(mergeRes.reasons.includes('merge-commit-not-supported-for-staged-binding'));
+});
+test('merge commit with failed CI is BLOCKED', () => {
+  const mergeRes = judgeReviewEvidence({
+    commitSha: commit,
+    parentSha: parent,
+    parentShas: [parent, 'd'.repeat(40)],
+    treeSha: tree,
+    policy: { ...required, requiredLocalChecks: [] },
+    ci: { ...ci, status: 'FAIL', workflows: { validate: 'FAIL' } },
+    checks: [],
+  });
+  assert.equal(mergeRes.status, 'BLOCKED');
+  assert.equal(mergeRes.isMergeCommit, true);
+});

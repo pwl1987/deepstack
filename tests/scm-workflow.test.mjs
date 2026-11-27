@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { inspectWorkflow, issuePreflight, verifyPreflight, checkPush, loadWorkflowConfig } from '../lib/scm-workflow.mjs';
-import { acquireWriter, verifyWriter, releaseWriter } from '../lib/writer-lease.mjs';
+import { acquireWriter, verifyWriter, releaseWriter, inspectWriter, breakWriter } from '../lib/writer-lease.mjs';
 
 function git(cwd, ...args) {
   const result = spawnSync('git', args, { cwd, encoding: 'utf8' });
@@ -172,4 +172,30 @@ test('subdirectory invocation loads workflow config and passes push-check withou
   git(repo, 'commit', '-m', 'sub change');
   const pushRes = checkPush(sub, main, opts);
   assert.equal(pushRes.status, 'PASS', JSON.stringify(pushRes));
+});
+
+test('writer lease status never leaks token and break requires force + reason', (t) => {
+  const { repo } = fixture(t);
+  assert.deepEqual(inspectWriter(repo), { status: 'UNLOCKED', held: false });
+
+  const a = acquireWriter(repo, 'crashed-agent');
+  assert.equal(a.status, 'PASS');
+  const locked = inspectWriter(repo);
+  assert.equal(locked.status, 'LOCKED');
+  assert.equal(locked.held, true);
+  assert.equal(locked.owner, 'crashed-agent');
+  assert.equal(locked.pid, process.pid);
+  assert.equal(locked.pidAlive, true);
+  assert.equal('token' in locked, false);
+
+  assert.equal(breakWriter(repo, { force: false, reason: 'stale' }).status, 'FAIL');
+  assert.equal(breakWriter(repo, { force: true, reason: 'no' }).status, 'FAIL');
+  const broken = breakWriter(repo, { force: true, reason: 'confirmed dead session' });
+  assert.equal(broken.status, 'PASS');
+  assert.equal(broken.broken, true);
+  assert.equal(broken.previousOwner, 'crashed-agent');
+  assert.equal(inspectWriter(repo).status, 'UNLOCKED');
+
+  const b = acquireWriter(repo, 'next-agent');
+  assert.equal(b.status, 'PASS');
 });

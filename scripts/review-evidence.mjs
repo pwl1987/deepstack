@@ -39,7 +39,8 @@ if (!Array.isArray(policy?.requiredWorkflows) || !policy.requiredWorkflows.lengt
 }
 const parents = run('git', ['show', '-s', '--format=%P', commitSha], repo);
 const tree = run('git', ['rev-parse', `${commitSha}^{tree}`], repo);
-if (parents.status !== 0 || tree.status !== 0 || parents.stdout.trim().split(/\s+/).length !== 1) {
+const parentList = parents.stdout.trim() ? parents.stdout.trim().split(/\s+/) : [];
+if (parents.status !== 0 || tree.status !== 0 || parentList.some(p => !fullSha.test(p))) {
   result({ status: 'INCOMPLETE', reason: 'commit-parent-tree-unavailable', commitSha });
 }
 const slug = run('gh', ['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner'], repo);
@@ -51,9 +52,9 @@ if (query.status !== 0) result({ status: 'INCOMPLETE', reason: 'github-ci-unavai
 let ci;
 try { ci = judgeCiEvidence(commitSha, policy.requiredWorkflows, JSON.parse(query.stdout)); }
 catch { result({ status: 'INCOMPLETE', reason: 'github-ci-unparseable', commitSha }); }
-const assessment = judgeReviewEvidence({ commitSha, parentSha: parents.stdout.trim(),
-  treeSha: tree.stdout.trim(), policy, ci, checks: reports });
-const diff = run('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', commitSha], repo);
+const assessment = judgeReviewEvidence({ commitSha, parentSha: parentList[0] || null,
+  parentShas: parentList, treeSha: tree.stdout.trim(), policy, ci, checks: reports });
+const diff = run('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', '-m', '--first-parent', commitSha], repo);
 console.log(JSON.stringify({
   ...assessment, repository, ci, changedFiles: diff.status === 0 ? diff.stdout.trim().split('\n').filter(Boolean) : null,
   source: 'git-commit+committed-config+live-github-actions',

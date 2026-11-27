@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
-import fs from 'node:fs';
 import { judgeCiEvidence } from '../lib/ci-evidence.mjs';
 
 const [repoArg, sha, ...args] = process.argv.slice(2);

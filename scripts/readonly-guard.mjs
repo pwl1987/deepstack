@@ -46,10 +46,33 @@ function trackedFiles() {
 
 function hashFile(relativePath) {
   const absolutePath = path.join(root, relativePath);
-  const stat = fs.statSync(absolutePath);
+  let stat;
+  try {
+    stat = fs.lstatSync(absolutePath);
+  } catch (error) {
+    if (error.code === "ENOENT") return { kind: "missing" };
+    throw error;
+  }
+  if (stat.isSymbolicLink()) {
+    const target = fs.readlinkSync(absolutePath);
+    const sha256 = crypto.createHash("sha256").update(target).digest("hex");
+    return { kind: "symlink", sha256, size: target.length, mode: stat.mode & 0o777 };
+  }
+  if (stat.isDirectory()) {
+    return { kind: "dir", mode: stat.mode & 0o777 };
+  }
   const hash = crypto.createHash("sha256");
-  hash.update(fs.readFileSync(absolutePath));
-  return { sha256: hash.digest("hex"), size: stat.size, mode: stat.mode & 0o777 };
+  const buffer = Buffer.allocUnsafe(64 * 1024);
+  const fd = fs.openSync(absolutePath, "r");
+  try {
+    let bytesRead;
+    while ((bytesRead = fs.readSync(fd, buffer, 0, buffer.length, null)) > 0) {
+      hash.update(buffer.subarray(0, bytesRead));
+    }
+  } finally {
+    fs.closeSync(fd);
+  }
+  return { kind: "file", sha256: hash.digest("hex"), size: stat.size, mode: stat.mode & 0o777 };
 }
 
 function capture() {
