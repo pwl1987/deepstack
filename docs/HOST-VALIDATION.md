@@ -1,18 +1,18 @@
 # 宿主验证记录
 
-这是一份 2026-11-22 在 macOS Apple Silicon 上进行的点时验证记录。它描述实际运行过的表面和限制，不替代持续集成，也不代表所有模型、账号或宿主版本都通过。
+这是一份 2026-11-22 至 2026-11-28 在 macOS Apple Silicon 上进行的点时验证记录。它描述实际运行过的表面和限制，不替代持续集成，也不代表所有模型、账号或宿主版本都通过。
 
-表中的原生宿主探针实际使用 `0.2.2`。当前分支已经更新到 `0.2.4`，本机需要重新加载插件后才能把这些宿主结论升级为当前版本证据。
+表中的基础观测来自 `0.2.2`；当前分支已更新到 `0.2.5`。2026-11-28 对本机三个 CLI 宿主在隔离 `/tmp` Git 仓库重新执行 3 用例只读探针：仅 `Codex CLI 0.172.0` 产出可裁决的 `0.2.5` 部分通过结果（1/3 用例）；`Claude Code 2.1.332` 与 `Pi Agent 1.6.1` 在本次实机探针中均超时未输出有效结果，因此与 GUI 宿主（`ZCode`、`MiniMax Code`）一起保留 `0.2.2` 历史记录，未升级为 `0.2.5` 通过结论。
 
-机器可读能力状态见 [evals/hosts.json](../evals/hosts.json)。下表为 2026-11-22 至 2026-11-23 的**手工观察摘要**；与 `hosts.json` 冲突时以 `hosts.json` 为准。GitHub Actions **不**把这些观察当作通过。
+机器可读能力状态见 [evals/hosts.json](../evals/hosts.json)。下表为 2026-11-22 至 2026-11-28 的**手工观察摘要**；与 `hosts.json` 冲突时以 `hosts.json` 为准。GitHub Actions **不**把这些观察当作通过。
 
 | 宿主 | 版本 | 验证内容 | 结果 | 边界 |
 |---|---|---|---|---|
-| Claude Code | 2.1.330 | 使用插件目录运行只读自然语言任务，检查自动路由、范围和证据契约 | 通过 | 出现一次模型不可识别警告，但任务成功完成 |
-| Codex CLI | 0.171.0 | 刷新 `deepstack@deepstack` 到 `0.2.2`，用原生 `$deepstack` 在临时项目执行只读路由探针 | 通过 | 返回五字段；未确认宿主是否始终暴露确定性预检脚本 |
-| Pi Agent | 1.6.0 | 刷新用户技能后用原生 `/skill:deepstack` 执行只读路由探针 | 通过 | 旧用户技能曾把同一输入误路由为 `feature`；刷新后临时项目保持 clean |
-| ZCode | 3.19.1 | 用带 `#分支` 的 Git URL 安装包含 `7ae2525` 的 `0.2.2`，在临时本地 Git 仓库执行高风险只读探针 | 部分通过（本地路由） | 临时本地仓库保持 clean，返回 `UNVERIFIED + investigation + L2 + SAME_MODEL_REVIEW + 未确认`；历史 Comet 集成探针曾产生删除变更，但 Comet 不属于 DeepStack 支持面 |
-| MiniMax Code | 3.1.17 | 在独立临时项目中加载本仓库 `0.2.2` 插件并执行高风险只读路由探针 | 通过 | 原生 `$deepstack` 返回 `investigation + L2 + SAME_MODEL_REVIEW + 未确认`；临时项目保持 clean |
+| Claude Code | 2.1.330 | （`0.2.2` 历史）使用插件目录运行只读自然语言任务，检查自动路由、范围和证据契约 | 通过（`0.2.2`） | 曾出现一次模型不可识别警告；2026-11-28 以 `2.1.332` 重跑 `0.2.5` 首例在 180s 超时（`[claude-code:unrecognized_model]`），`0.2.5` 仍未验证 |
+| Codex CLI | 0.172.0 | （`0.2.5`）在隔离 `/tmp` Git 仓库通过 `.agents/skills` + `--ephemeral -s read-only` 执行 3 条只读路由用例，经 `route-adjudicate.mjs` 与 `readonly-guard` 核验（另有 `0.171.0 / 0.2.2` 历史记录） | 部分通过（1/3 用例） | `routing-probe-wrapper-wins`（23.2s）裁决 `PASS`（`UNVERIFIED + investigation + L2 + SAME_MODEL_REVIEW + 未确认`）；`explicit-readonly-wins` 与 `read-only-explanation` 在进入代码调查后于 120s 超时；`readonly-guard` 确认仓库 clean |
+| Pi Agent | 1.6.0 | （`0.2.2` 历史）刷新用户技能后用原生 `/skill:deepstack` 执行只读路由探针 | 通过（`0.2.2`） | 旧用户技能曾把同一输入误路由为 `feature`；2026-11-28 以 `1.6.1`（`--no-extensions --no-skills --skill`）重跑 `0.2.5` 3 例均在 120s 超时且无输出，未更新为 `0.2.5` 通过 |
+| ZCode | 3.19.1 | （`0.2.2` 历史）用带 `#分支` 的 Git URL 安装包含 `7ae2525` 的 `0.2.2`，在临时本地 Git 仓库执行高风险只读探针 | 部分通过（本地路由，`0.2.2`） | 临时本地仓库保持 clean，返回 `UNVERIFIED + investigation + L2 + SAME_MODEL_REVIEW + 未确认`；历史 Comet 集成探针曾产生删除变更，但 Comet 不属于 DeepStack 支持面；`0.2.5` 需重新加载确认 |
+| MiniMax Code | 3.1.17 | （`0.2.2` 历史）在独立临时项目中加载本仓库 `0.2.2` 插件并执行高风险只读路由探针 | 通过（`0.2.2`） | 原生 `$deepstack` 返回 `investigation + L2 + SAME_MODEL_REVIEW + 未确认`；临时项目保持 clean；`0.2.5` 需重新加载确认 |
 
 ## 原生 Goal 与会话恢复专项核验
 
